@@ -1,0 +1,11 @@
+[core]
+    excludesfile = "/home/aaron/.gitignore"
+[user]
+    name = Aaron Toponce
+    email = aaron.toponce@gmail.com
+[color]
+    ui = auto
+    diff = auto
+    status = auto
+    branch = auto
+

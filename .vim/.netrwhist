@@ -1,0 +1,11 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =9
+let g:netrw_dirhist_1='/home/aaron/.mutt'
+let g:netrw_dirhist_2='/tmp/foo'
+let g:netrw_dirhist_3='/home/aaron/src/home/.mutt'
+let g:netrw_dirhist_4='/home/aaron/.mutt'
+let g:netrw_dirhist_5='/home/aaron'
+let g:netrw_dirhist_6='/home/aaron/src/work/git/salt/salt/cli'
+let g:netrw_dirhist_7='/media/mirror/aaron/work/gurudisk/GL/setup'
+let g:netrw_dirhist_8='/media/mirror/aaron/work/gurudisk/GL/setup/etc'
+let g:netrw_dirhist_9='/home/aaron/.weechat/python/autoload'
