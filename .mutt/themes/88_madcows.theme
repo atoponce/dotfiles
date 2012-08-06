@@ -1,0 +1,46 @@
+# colors:
+# white / brightwhite
+# black / brightblack
+# green / brightgreen
+# magenta / brightmagenta
+# blue / brightblue
+# cyan / brightcyan
+# yellow / brightyellow
+# red / brightred
+# default (transparent)
+
+# general colors
+color error         brightred       default
+color markers       brightred       default
+color message       default           default
+color normal        default           default
+color status        default           default
+color search        default     magenta
+
+# message index and attachment menu
+color attachment    brightblack    default
+color indicator     red         default
+color index         brightwhite default ~F          # important messages    ! flag - command "F"
+color index         green       default ~N          # new messages      N flag - command "N"
+color index         magenta     default ~T          # tagged messages   * flag - command "t"
+color index         green       default ~U          # unread messages
+color index         brightblue  default ~D          # deleted messages      D flag - commands "d"/"u"
+color tree          brightred   default
+
+# pager
+color hdrdefault    brightblack           default
+color quoted        red           default
+color quoted1       brightblack          default
+color quoted2       red default
+color quoted3       brightblack             default
+color quoted4       red             default
+color quoted5       brightblack             default
+color quoted6       red             default
+color quoted7       brightblack             default
+color quoted8       red             default
+color quoted9       brightblack             default
+color signature     brightblack            default
+color tilde         blue            default
+color bold          brightblack    default
+
+# vim: ft=muttrc

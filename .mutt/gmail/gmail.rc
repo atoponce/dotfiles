@@ -1,0 +1,17 @@
+bind editor <Tab> complete-query
+bind editor ^T complete
+unset imap_user imap_pass
+macro index S "<save-message>+[Gmail]/Spam<enter>"   "mark message as spam"
+set from="aaron.toponce@gmail.com"
+set folder="imaps://imap.gmail.com:993"    	# Connect to IMAP over SSL
+set record="+[Gmail]/Sent Mail"				# Save sent mail to Sent Mail on Gmail
+set spoolfile="+INBOX"					# Default inbox
+set postponed="+[Gmail]/Drafts"				# Save 'postponed' mail to Drafts
+set realname="Aaron Toponce"				# Your real name
+set imap_user="aaron.toponce@gmail.com"			# IMAP Username
+set query_command = "goobook query '%s'"                # get google contacts into mutt
+set signature="~/glider.txt"
+set smtp_url="smtp://aaron.toponce@smtp.gmail.com:587/"	# SMTP Username
+source ~/.mutt/gmail/gmail_lists
+source "gpg2 --no-tty -qd ~/.mutt/gmail/gmail.pass.gpg |"
+# vim: set ft=muttrc:

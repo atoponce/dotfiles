@@ -1,0 +1,6 @@
+color status default default
+color indicator green default
+color hdrdefault brightblack default
+color quoted red default
+
+# vim: set ft=muttrc:
