@@ -45,6 +45,7 @@ set message_cachedir="~/.mutt/cache/bodies"        # Location to save cached mai
 set message_cache_clean="yes"                           # Delete cache files if deleted off the server
 set move="no"                        # Don't move read mail
 set pager_index_lines="11"
+set query_command = "goobook query '%s'"                # get google contacts into mutt
 set quote_regexp="^([ \t]*[|>:}])+"            # quoted messages (got rid of '#' which is in the default
 set reverse_alias="yes"                    # 
 set sort="threads"                    # Show message threads by default

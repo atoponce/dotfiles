@@ -6,8 +6,7 @@ set record="+[Gmail]/Sent Mail"				# Save sent mail to Sent Mail on Gmail
 set spoolfile="+INBOX"					# Default inbox
 set postponed="+[Gmail]/Drafts"				# Save 'postponed' mail to Drafts
 set realname="Aaron Toponce"				# Your real name
-set query_command = "goobook query '%s'"                # get google contacts into mutt
-set signature="~/.mutt/gmail/signature.txt"             # Signature
+set signature="~/glider.txt"
 source ~/.mutt/gmail/gmail_lists
-source "gpg2 --no-tty -qd ~/.mutt/gmail/gmail.pass.gpg |"
+source "gpg2 --no-tty -qd ~/.mutt/gmail/gmail.gpg |"
 # vim: set ft=muttrc:

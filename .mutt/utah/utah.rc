@@ -1,10 +1,10 @@
 bind editor <Tab> complete-query
 bind editor ^T complete
 unset imap_user imap_pass
-set record="+Sent Items"				# Save sent mail to Sent Mail on Gmail
-set spoolfile="+INBOX"					# Default inbox
-set postponed="+Drafts" 				# Save 'postponed' mail to Drafts
-set realname="Aaron Toponce"				# Your real name
-set signature="~/.mutt/utah/signature.txt"              # Signature file
-source "gpg2 --no-tty -qd ~/.mutt/utah/utah.pass.gpg |"
+set record="+Sent Items"
+set spoolfile="+INBOX"
+set postponed="+Drafts"
+set realname="Aaron Toponce
+set signature="~/.mutt/utah/signature.txt"
+source "gpg2 --no-tty -qd ~/.mutt/utah/utah.gpg |"
 # vim: set ft=muttrc:
