@@ -9,6 +9,7 @@ folder-hook "xmission.com" "source ~/.mutt/xmission/xmission.rc"
 #macro index Ab "<change-folder>imaps://mail.beyondoblivion.com<enter>"
 macro index Ag "<change-folder>imaps://imap.gmail.com<enter>"
 macro index Ax "<change-folder>imaps://zimbra.xmission.com<enter>"
+macro index Au "<change-folder>imaps://imap.umail.utah.edu<enter>"
 
 my_hdr OpenPGP: id=8086060F\; url=http://ae7.st/s/pgp\; preference=signencrypt
 my_hdr Crypto-Challenge: iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AQMAAAAAMksxAAAABlBMVEX\
