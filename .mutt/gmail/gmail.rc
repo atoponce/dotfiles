@@ -1,6 +1,7 @@
 bind editor <Tab> complete-query
 bind editor ^T complete
 unset imap_user imap_pass
+source "gpg2 --no-tty -qd ~/.mutt/gmail/gmail.gpg |"
 macro index S "<save-message>+[Gmail]/Spam<enter>"   "mark message as spam"
 set record="+[Gmail]/Sent Mail"
 set spoolfile="+INBOX"
@@ -8,5 +9,4 @@ set postponed="+[Gmail]/Drafts"
 set realname="Aaron Toponce"
 set signature="~/.mutt/gmail/signature.txt"
 source ~/.mutt/gmail/gmail_lists
-source "gpg2 --no-tty -qd ~/.mutt/gmail/gmail.gpg |"
 # vim: set ft=muttrc:

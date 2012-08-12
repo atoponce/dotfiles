@@ -5,6 +5,7 @@ color body brightyellow default "^\\[-- .*Hashcash.*"
 #folder-hook "beyondoblivion.com" "source ~/.mutt/beyond/beyond.rc"
 folder-hook "gmail.com" "source ~/.mutt/gmail/gmail.rc"
 folder-hook "xmission.com" "source ~/.mutt/xmission/xmission.rc"
+folder-hook "utah.edu" "source ~/.mutt/utah/utah.rc"
 
 #macro index Ab "<change-folder>imaps://mail.beyondoblivion.com<enter>"
 macro index Ag "<change-folder>imaps://imap.gmail.com<enter>"

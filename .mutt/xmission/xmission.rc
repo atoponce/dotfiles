@@ -1,16 +1,13 @@
 bind editor <Tab> complete
 bind editor ^T complete-query
-unset query_command imap_user imap_pass
+unset imap_user imap_pass
+source "gpg2 --no-tty -qd ~/.mutt/xmission/xmission.gpg |"
 set imap_check_subscribed
 set postponed="+Drafts"
 set realname="Aaron Toponce"
 set record="+Sent"
-set reverse_alias=yes
 set signature="~/professional.txt"
-set sort_alias=alias
 set ssl_starttls="yes"
 set ssl_force_tls="yes"
-source $alias_file
 source ~/.mutt/xmission/xmission_lists
-source "gpg2 --no-tty -qd ~/.mutt/xmission/xmission.gpg |"
 # vim: set ft=muttrc:
