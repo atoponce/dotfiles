@@ -56,8 +56,7 @@ color header    color178    color233    '^subject:'
 color header    color31     color233    '^user-agent:'
 color header    color29     color233    '^reply-to:'
 
-#color header   magenta default
-'^(status|lines|date|received|sender|references):'
+#color header   magenta default '^(status|lines|date|received|sender|references):'
 #color header   magenta default '^(pr|mime|x-|user|return|content-)[^:]*:'
 #color header   brightyellow default '^content-type:'
 #color header   magenta default '^content-type: *text/plain'
@@ -76,25 +75,18 @@ color header    color29     color233    '^reply-to:'
 #color index blue default '~b "<(img|a |html|body)"'
 
 ### china spam
-#color index brightred black '~h "^(content-type:|
-+).*charset=\"?(big5|gb2312|SHIFT.JIS|euc.kr|windows.125[^2]|iso.[0-9]+.jp|koi[^
-;"])"'
+#color index brightred black '~h "^(content-type:| +).*charset=\"?(big5|gb2312|SHIFT.JIS|euc.kr|windows.125[^2]|iso.[0-9]+.jp|koi[^ ;"])"'
 
 ### sex
-#color index brightyellow black "~b
-'(p$E+n$I+$S|sex|er$E+ct$I+$O+n|p$O+rn$O+|v$I+$A+gr|c$I+$A+$L+$I+$S)'"
+#color index brightyellow black "~b '(p$E+n$I+$S|sex|er$E+ct$I+$O+n|p$O+rn$O+|v$I+$A+gr|c$I+$A+$L+$I+$S)'"
 
 ### misc
-#color index cyan black '~b
-"(w$A+tch|r$E+p$L+$I+c$A|d$I+p$L+$O+m|d$E+gr$E+e|pr$I+ce|s$A+les|\\\$[0-9]+)"'
+#color index cyan black '~b "(w$A+tch|r$E+p$L+$I+c$A|d$I+p$L+$O+m|d$E+gr$E+e|pr$I+ce|s$A+les|\\\$[0-9]+)"'
 
 ### drug
-#color index white black "~b
-'(ph$A+rm$A+cy|m$E+d$I+c$A+t$I+$O+n|pr$E+scr$I+pt$I+$O+n|d$I+$S+c$O+$U+nt|p$I+$L+$S|v$A+$L+$I+$U+m|v$I+c$O+d$I+n)'"
+#color index white black "~b '(ph$A+rm$A+cy|m$E+d$I+c$A+t$I+$O+n|pr$E+scr$I+pt$I+$O+n|d$I+$S+c$O+$U+nt|p$I+$L+$S|v$A+$L+$I+$U+m|v$I+c$O+d$I+n)'"
 
 
-#mono index bold '~h "^content-type:
-*(multipart/(mixed|signed|encrypted)|application/)"'
-#color index    green black '~h "^content-type:
-*multipart/(signed|encrypted)"'
+#mono index bold '~h "^content-type: *(multipart/(mixed|signed|encrypted)|application/)"'
+#color index    green black '~h "^content-type: *multipart/(signed|encrypted)"'
 
