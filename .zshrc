@@ -75,6 +75,8 @@ unset k
 # work specific aliases
 alias git.bo="ssh git.bo"
 alias clearstorage0='ssh-keygen -R storage0.cab1 && ssh-keygen -R storage0.cab1.la.bo && ssh-keygen -R 172.10.1.120'
+alias asdf="setxkbmap dvorak"
+alias aoeu="setxkbmap us"
 
 # general purpose aliases
 alias ls='ls --color=always -F'
@@ -86,10 +88,12 @@ alias kratos='ssh kratos'
 alias tunnelhome='pkill ssh; ssh -4fgN -D 8081 -L 8080:localhost:3128 -L 33306:localhost:3306 achilles'
 alias mounthome='sshfs achilles:/ /home/aaron/pthree'
 alias usbmodem="sudo pppd /dev/ttyACM0 call ppp-script-treo"
-alias clearstorage0='ssh-keygen -R storage0.cab1 && ssh-keygen -R storage0.cab1.la.bo && ssh-keygen -R 172.10.1.120'
+alias irc="sudo python /usr/local/bin/email-0mq.py& weechat-curses"
 
 # general purpose functions
-expandurl() { wget -S $1 2>&1 | grep ^Location }
+#expandurl() { wget --spider -O - -S $1 2>&1 | awk '/^Location/ END{print $2}' }
+#expandurl() { wget --spider -S $1 2>&1 | awk '/^Location/ {print $2}' | tail -n 1 }
+expandurl() { curl -s "http://api.longurl.org/v2/expand?url=${1}&format=php" | awk -F '"' '{print $4}'}
 shorturl() { wget -qO - 'http://ae7.st/s/yourls-api.php?signature=8e4f5d1d8d&action=shorturl&format=simple&url='$1 }
 
 if which dpkg &> /dev/null; then
@@ -158,6 +162,3 @@ source ~/.zsh_prompt
 #    echo $$ > /dev/cgroup/cpu/user/$$/tasks
 #    echo "1" > /dev/cgroup/cpu/user/$$/notify_on_release
 #fi
-DEBEMAIL="aaron.toponce@gmail.com"
-DEBFULLNAME="Aaron Toponce"
-export DEBEMAIL DEBFULLNAME
