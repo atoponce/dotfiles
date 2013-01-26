@@ -91,8 +91,8 @@ alias usbmodem="sudo pppd /dev/ttyACM0 call ppp-script-treo"
 alias irc="sudo python /usr/local/bin/email-0mq.py& weechat-curses"
 
 # general purpose functions
-expandurl() { wget --spider -O - -S $1 2>&1 | awk '/^Location/ {a=$2} END {print a}' }
-longurl() { curl -s "http://api.longurl.org/v2/expand?url=${1}&format=php" | awk -F '"' '{print $4}'}
+expandurl() { wget --spider -O - -S $1 2>&1 | awk '/^Location/ {gsub("?utm_.*",""); a=$2} END {print a}' }
+longurl() { curl -s "http://api.longurl.org/v2/expand?url=${1}&format=php" | awk -F '"' '{gsub("?utm_.*",""); print $4}'}
 shorturl() { wget -qO - 'http://ae7.st/s/yourls-api.php?signature=8e4f5d1d8d&action=shorturl&format=simple&url='$1 }
 
 if which dpkg &> /dev/null; then
