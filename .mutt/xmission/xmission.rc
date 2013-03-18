@@ -6,7 +6,7 @@ set imap_check_subscribed
 set postponed="+Drafts"
 set realname="Aaron Toponce"
 set record="+Sent"
-set signature="~/professional.txt"
+set signature="~/src/dotfiles/.mutt/xmission/signature.txt"
 set ssl_starttls="yes"
 set ssl_force_tls="yes"
 source ~/.mutt/xmission/xmission_lists
