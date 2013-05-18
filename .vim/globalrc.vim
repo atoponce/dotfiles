@@ -2,6 +2,7 @@ colorscheme zenburn                 " set the theme
 let g:zenburn_high_Contrast=1       " higher contrast for the zenburn color scheme
 set autoindent                      " auto indent tabs when pressing enter
 set background=dark                 " set the background
+set cryptmethod=blowfish            " use the blowfish rather than default "zip" method
 set expandtab                       " convert tabs to spaces
 set guifont=Liberation\ Mono\ 8     " set the appropriate font
 set guioptions='aegit'              " set mouse options, and otherwise
@@ -18,5 +19,5 @@ set smarttab                        " smart backspace for identifying tabs when 
 set softtabstop=4                   " four characters when the tab key is pressed
 set t_Co=256                        " tell vim that 256 colors are available
 set tabstop=8                       " if the tab character is identified, use an 8 character width
-set textwidth=75                   " wrap text at 75 lines
+set textwidth=79                    " wrap text at 75 lines
 syntax enable                       " enable syntax highlighting for config files and source code

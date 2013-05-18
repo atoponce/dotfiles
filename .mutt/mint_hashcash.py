@@ -12,6 +12,7 @@ subprocess.call("vim %s" % sys.argv[1], shell=True)
 file = open(sys.argv[1], 'r')
 headers = rfc822.Message(file)
 
+from_emails = headers.getaddrlist("From")
 to_emails = headers.getaddrlist("To")
 cc_emails = headers.getaddrlist("Cc")
 
@@ -23,6 +24,10 @@ for email in to_emails:
     email_addrs.append(email[1])
 
 for email in cc_emails:
+    email_addrs.append(email[1])
+
+# Add From: email to the minted list
+for email in from_emails:
     email_addrs.append(email[1])
 
 # Remove duplicate emails from the list, requires Python 2.5 and later

@@ -11,7 +11,7 @@ folder-hook "utah.edu" "source ~/.mutt/utah/utah.rc"
 macro index Ag "<change-folder>imaps://imap.gmail.com<enter>"
 macro index Ax "<change-folder>imaps://zimbra.xmission.com<enter>"
 macro index Au "<change-folder>imaps://imap.umail.utah.edu<enter>"
-macro index M "T.*\n;WN;^T.*\n" "Mark all messages as read"
+macro index M "T.\n;WN;^T.\n" "Mark all messages as read"
 
 my_hdr OpenPGP: id=8086060F\; url=http://ae7.st/s/pgp\; preference=signencrypt
 my_hdr Crypto-Challenge: iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AQMAAAAAMksxAAAABlBMVEX\
