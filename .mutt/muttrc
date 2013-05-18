@@ -14,12 +14,16 @@ macro index Au "<change-folder>imaps://imap.umail.utah.edu<enter>"
 macro index M "T.*\n;WN;^T.*\n" "Mark all messages as read"
 
 my_hdr OpenPGP: id=8086060F\; url=http://ae7.st/s/pgp\; preference=signencrypt
-my_hdr Crypto-Challenge: iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AQMAAAAAMksxAAAABlBMVEX\
-	///8AAABVwtN+AAAAtklEQVQokXXQMQ6CMBQG4McCiykXMPEKsuEiV2nCBdoLWNgN\
-	Xqld7MYZeoQSFgbisyZWER//9E1//vcAYhQOvkB0X3AQotBAoZ5lV9hpA63ZxCP5Q\
-	SiE5N28QpjRxT0rhFzi7BWUlx3LQvMH+x1jx7IEAoer8hVqR4Crhp1fhf9QI976tF\
-	oAIGlYWTkCCr3I7yTCpTkaDQTqWUhjtFtCNizNgEbbZxMFDnIYrHUEwjPRnywQiHk\
-	CI/3gDHrryF4AAAAASUVORK5CYII=
+#my_hdr Crypto-Challenge: iVBORw0KGgoAAAANSUhEUgAAADwAAAA8AQMAAAAAMksxAAAABlBMVEX\
+#	///8AAABVwtN+AAAAtklEQVQokXXQMQ6CMBQG4McCiykXMPEKsuEiV2nCBdoLWNgN\
+#	Xqld7MYZeoQSFgbisyZWER//9E1//vcAYhQOvkB0X3AQotBAoZ5lV9hpA63ZxCP5Q\
+#	SiE5N28QpjRxT0rhFzi7BWUlx3LQvMH+x1jx7IEAoer8hVqR4Crhp1fhf9QI976tF\
+#	oAIGlYWTkCCr3I7yTCpTkaDQTqWUhjtFtCNizNgEbbZxMFDnIYrHUEwjPRnywQiHk\
+#	CI/3gDHrryF4AAAAASUVORK5CYII=
+my_hdr Crypto-Challenge: iVBORw0KGgoAAAANSUhEUgAAAFwAAABcAQMAAADZIUAbAAAABlBMVEX\
+	///8AAABVwtN+AAAAS0lEQVQ4jbXSUQoAIAhEwYXuf2NhS1O6QM+EnH4qUfoaK2bB\
+	cJysnUUVWYlGput3JGxPD1H00byAQ17r20YW8QaChXr2UHgiUHyNDSRgxkgDsThDA\
+	AAAAElFTkSuQmCC
 my_hdr Crypto-Hint: image/png
 
 #send-hook '~t ^pgp-basics@yahoogroups\.com$' 'unset crypt_use_gpgme; unset pgp_mime_auto; set pgp_replyinline; set pgp_autoinline'
