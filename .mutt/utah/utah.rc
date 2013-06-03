@@ -1,5 +1,3 @@
-bind editor <Tab> complete-query
-bind editor ^T complete
 unset imap_user imap_pass
 source "gpg2 --no-tty -qd ~/.mutt/utah/utah.gpg |"
 set record="+Sent Items"

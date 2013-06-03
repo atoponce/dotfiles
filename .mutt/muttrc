@@ -1,13 +1,13 @@
 auto_view text/calendar
+bind editor <Tab> complete
+bind editor ^T complete-query
 bind index "^" imap-fetch-mail
 color body brightyellow default "^\\[-- .*Hashcash.*"
 
-#folder-hook "beyondoblivion.com" "source ~/.mutt/beyond/beyond.rc"
 folder-hook "gmail.com" "source ~/.mutt/gmail/gmail.rc"
 folder-hook "xmission.com" "source ~/.mutt/xmission/xmission.rc"
 folder-hook "utah.edu" "source ~/.mutt/utah/utah.rc"
 
-#macro index Ab "<change-folder>imaps://mail.beyondoblivion.com<enter>"
 macro index Ag "<change-folder>imaps://imap.gmail.com<enter>"
 macro index Ax "<change-folder>imaps://zimbra.xmission.com<enter>"
 macro index Au "<change-folder>imaps://imap.umail.utah.edu<enter>"
@@ -19,48 +19,46 @@ my_hdr Crypto-Challenge: iVBORw0KGgoAAAANSUhEUgAAAFwAAABcAQMAAADZIUAbAAAABlBMVEX
 	lGput3JGxPD1H00byAQ17r20YW8QaChXr2UHgiUHyNDSRgxkgDsThDAAAAAElFTkSuQmCC
 my_hdr Crypto-Hint: image/png
 
-#send-hook '~t ^pgp-basics@yahoogroups\.com$' 'unset crypt_use_gpgme; unset pgp_mime_auto; set pgp_replyinline; set pgp_autoinline'
 send-hook '~t ^aaron\.toponce@ymail\.com$' 'set pgp_autoinline'
 
-set askbcc="yes"                                        # ask for Bcc: recipients when composing a message
-set askcc="yes"                                         # ask for Cc: recipients when composing a message
+set askbcc="yes"
+set askcc="yes"
 set charset="utf-8"
-set certificate_file="~/.mutt/certs"            # SASL2 certificate location
-set copy="yes"                        # Keep a localized copy of sent mail
+set certificate_file="~/.mutt/certs"
+set copy="yes"
 set display_filter="~/.mutt/verify_hashcash.py"
-set edit_headers="yes"                                  # edit the headers when composing a message
-set editor="~/.mutt/mint_hashcash.py"               # Calls a hashcash python program which calls vim, then mints tokens
+set edit_headers="yes"
+set editor="~/.mutt/mint_hashcash.py"
 set envelope_from="yes"
-set folder_format="%3C %3N  %f"                         # folder format. compact for small screens, like phones
-set header_cache="~/.mutt/cache/headers"        # Location to save cached mail headers
-#set hostname="poseidon.cocyt.us"
-#set imap_keepalive="60"                # When in a menu, keep imap alive
+set folder_format="%3C %3N  %f"
+set header_cache="~/.mutt/cache/headers"
+#set imap_keepalive="60"
 set imap_idle="yes"
-set imap_check_subscribed="yes"                # Check 'subscribed' folders only
-#set imap_list_subscribed="yes"                # List only 'subscribed' folders
-set index_format="%4C %Z %{%b %d} %-15.15F (%?l?%4l&%4c?) %s"    # column format
-set mail_check="60"                    # Check for new mail every minute
-set message_cachedir="~/.mutt/cache/bodies"        # Location to save cached mail bodies
-set message_cache_clean="yes"                           # Delete cache files if deleted off the server
-set move="no"                        # Don't move read mail
+set imap_check_subscribed="yes"
+#set imap_list_subscribed="yes"
+set index_format="%4C %Z %{%b %d} %-15.15F (%?l?%4l&%4c?) %s"
+set mail_check="60"
+set message_cachedir="~/.mutt/cache/bodies"
+set message_cache_clean="yes"
+set move="no"
 set pager_index_lines="11"
-set query_command = "goobook query '%s'"                # get google contacts into mutt
-set quote_regexp="^([ \t]*[|>:}])+"            # quoted messages (got rid of '#' which is in the default
-set reverse_alias="yes"                    # 
-set sort="threads"                    # Show message threads by default
-set sort_alias="alias"                    # Sort by alias
-set sort_aux="last-date-received"                       # sort threads by date received
-#set timeout="60"                    # Poll the current mailbox every minute
-set use_from                                            # allow me to switch email addresses in my editor
+set query_command = "goobook query '%s'"
+set quote_regexp="^([ \t]*[|>:}])+"
+set reverse_alias="yes"
+set sort="threads"
+set sort_alias="alias"
+set sort_aux="last-date-received"
+#set timeout="60"
+set use_from
 
-ignore *                        # Draconian header weed
+ignore *
 unignore from date subject to cc user-agent hostname
 unignore organization organisation posted-to
 unignore x-mailer x-newsreader x-mailing-list
 unignore x-hashcash hashcash
-#unignore message-id in-reply-to references             # Pay attention to headers for proper threading
+#unignore message-id in-reply-to references
 unignore openpgp
-auto_view text/html                                     # Use ~/.mailcap coupled with links2 to view HTML email in text
+auto_view text/html
 
 source ~/.mutt/gmail/gmail.rc
 source ~/.mutt/gnupg

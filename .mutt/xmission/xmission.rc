@@ -1,5 +1,3 @@
-bind editor <Tab> complete
-bind editor ^T complete-query
 unset imap_user imap_pass
 source "gpg2 --no-tty -qd ~/.mutt/xmission/xmission.gpg |"
 set imap_check_subscribed
@@ -9,5 +7,4 @@ set record="+Sent"
 set signature="~/src/dotfiles/.mutt/xmission/signature.txt"
 set ssl_starttls="yes"
 set ssl_force_tls="yes"
-source ~/.mutt/xmission/xmission_lists
 # vim: set ft=muttrc:
