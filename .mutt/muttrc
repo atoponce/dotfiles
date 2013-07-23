@@ -68,6 +68,6 @@ source ~/.mutt/gnupg
 #source ~/.mutt/themes/eightyeight-madcows.rc
 #source ~/.mutt/themes/calmar-256-dark.theme
 #source ~/.mutt/themes/colors256-dark.theme
-source ~/.mutt/themes/mutt-colors-solarized/mutt-colors-solarized-dark-256.muttrc
+#source ~/.mutt/themes/mutt-colors-solarized/mutt-colors-solarized-dark-256.muttrc
 source ~/.mutt/auto_view
 # vim: set ft=muttrc:
