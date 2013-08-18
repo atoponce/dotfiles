@@ -1,5 +1,6 @@
 unset imap_user imap_pass
 source "gpg2 --no-tty -qd ~/.mutt/xmission/xmission.gpg |"
+macro index S "<save-message>+Junk<enter>"   "mark message as spam"
 set imap_check_subscribed
 set postponed="+Drafts"
 set realname="Aaron Toponce"
