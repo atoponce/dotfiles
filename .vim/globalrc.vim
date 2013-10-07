@@ -12,6 +12,7 @@ set nocompatible                    " don't use strict vi mode with vim and gvim
 set nojoinspaces                    " one space after the period joining sentences
 set nowrap                          " do not wrap long lines
 set number                          " number the lines on the left
+set relativenumber                  " show the relative line numbers above and below the cursor
 set ruler                           " show the line and column number of the cursor position in the status bar
 set shell=/bin/zsh                  " set the default shell
 set shiftwidth=4                    " the number of charcters to shift with >> and <<
