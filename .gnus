@@ -25,7 +25,7 @@
 
 (require 'hashcash)
 (setq message-generate-hashcash t)
-(setq hashcash-default-payment 24)
+(setq hashcash-default-payment 26)
 
 ; gpg stuff
 (load-library "mailcrypt")
@@ -86,13 +86,13 @@
 (setq gnus-posting-styles
       '(("gmail"
 	 (address "aaron.toponce@gmail.com")
-	 (message-signature-file "~/.signature.gmail"))
+	 (signature-file "~/src/dotfiles/.signature.gmail"))
 	("xmission"
 	 (address "at@xmission.com")
-	 (message-signature-file "~/.signature.xmission"))
+	 (signature-file "~/src/dotfiles/.signature.xmission"))
 	("utah"
 	 (address "aaron.toponce@utah.edu")
-	 (message-signature-file "~/.signature.utah"))))
+	 (signature-file "~/src/dotfiles/.signature.utah"))))
 
 ; available smtp accounts
 (defvar smtp-accounts
