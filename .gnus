@@ -1,3 +1,4 @@
+; formatting
 (setq-default
  gnus-summary-line-format "%U%R%z %(%&user-date;  %-15,15f  %B%s%)\n"
  gnus-user-date-format-alist '((t . "%Y-%m-%d %H:%M"))
@@ -26,6 +27,33 @@
 (setq message-generate-hashcash t)
 (setq hashcash-default-payment 24)
 
+; gpg stuff
+(load-library "mailcrypt")
+(mc-setversion "gpg")
+(autoload 'mc-install-write-mode "mailcrypt" nil t)
+(autoload 'mc-install-read-mode "mailcrypt" nil t)
+(add-hook 'gnus-summary-mode-hook 'mc-install-read-mode)
+(add-hook 'message-mode-hook 'mc-install-write-mode)
+;(add-hook 'mail-mode-hook 'mc-install-write-mode)
+(add-hook 'news-reply-mode-hook 'mc-install-write-mode)
+; If you have more than one key, specify the one to use
+(setq mc-gpg-user-id "Aaron Toponce <aaron.toponce@gmail.com>") ; where `address' is preferentially put between < and >
+; Always sign encrypted messages
+(setq mc-pgp-always-sign t)
+; How long should mailcrypt remember your passphrase
+(setq mc-passwd-timeout 600)
+; Automagically sign all messages
+(add-hook 'message-send-hook 'will-you-sign)
+(defun will-you-sign ()
+        (load-library "mc-toplev")
+       (interactive)
+        (if (y-or-n-p "Do you want to sign this message? ")
+                (mc-sign-message)))
+(add-hook 'gnus-summary-mode-hook 'mc-install-read-mode)
+(add-hook 'message-mode-hook 'mc-install-write-mode)
+(add-hook 'news-reply-mode-hook 'mc-install-write-mode)
+
+; encrypted .authinfo
 (require 'epa-file)
 (epa-file-enable)
 (setq epa-file-cache-passphrase-for-symmetric-encryption t)
@@ -33,7 +61,7 @@
 (require 'auth-source)
 (setq auth-sources '((:source "~/.authinfo.gpg" :host t :port t)))
 
-; primary imap account
+; default imap account
 (setq gnus-select-method
       '(nnimap "gmail"
 	   (nnimap-authinfo-file "~/.authinfo.gpg")
@@ -56,9 +84,15 @@
 
 ; let gnus change the "From:" based on the current group we're in
 (setq gnus-posting-styles
-      '(("gmail" (address "aaron.toponce@gmail.com"))
-	("xmission" (address "at@xmission.com"))
-	("utah" (address "aaron.toponce@utah.edu"))))
+      '(("gmail"
+	 (address "aaron.toponce@gmail.com")
+	 (message-signature-file "~/.signature.gmail"))
+	("xmission"
+	 (address "at@xmission.com")
+	 (message-signature-file "~/.signature.xmission"))
+	("utah"
+	 (address "aaron.toponce@utah.edu")
+	 (message-signature-file "~/.signature.utah"))))
 
 ; available smtp accounts
 (defvar smtp-accounts
