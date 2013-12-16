@@ -18,53 +18,60 @@
 (defun gnus-user-format-function-topic-line (dummy)
   (let ((topic-face (if (zerop total-number-of-articles)
                         'my-gnus-topic-empty-face
-                      'my-gnus-topic-face)))
+                        'my-gnus-topic-face)))
     (propertize
      (format "%s %d" name total-number-of-articles)
      'face topic-face)))
 
+; hashcash !!!
 (require 'hashcash)
 (setq message-generate-hashcash t)
 (setq hashcash-default-payment 26)
 
 ; gpg stuff
-(load-library "mailcrypt")
-(mc-setversion "gpg")
-(autoload 'mc-install-write-mode "mailcrypt" nil t)
-(autoload 'mc-install-read-mode "mailcrypt" nil t)
-(add-hook 'gnus-summary-mode-hook 'mc-install-read-mode)
-(add-hook 'message-mode-hook 'mc-install-write-mode)
-;(add-hook 'mail-mode-hook 'mc-install-write-mode)
-(add-hook 'news-reply-mode-hook 'mc-install-write-mode)
-; If you have more than one key, specify the one to use
-(setq mc-gpg-user-id "Aaron Toponce <aaron.toponce@gmail.com>") ; where `address' is preferentially put between < and >
-; Always sign encrypted messages
-(setq mc-pgp-always-sign t)
-; How long should mailcrypt remember your passphrase
-(setq mc-passwd-timeout 600)
-; Automagically sign all messages
-(add-hook 'message-send-hook 'will-you-sign)
-(defun will-you-sign ()
-        (load-library "mc-toplev")
-       (interactive)
-        (if (y-or-n-p "Do you want to sign this message? ")
-                (mc-sign-message)))
-(add-hook 'gnus-summary-mode-hook 'mc-install-read-mode)
-(add-hook 'message-mode-hook 'mc-install-write-mode)
-(add-hook 'news-reply-mode-hook 'mc-install-write-mode)
+;(load-library "mailcrypt")
+;(mc-setversion "gpg")
+;(autoload 'mc-install-write-mode "mailcrypt" nil t)
+;(autoload 'mc-install-read-mode "mailcrypt" nil t)
+;(add-hook 'gnus-summary-mode-hook 'mc-install-read-mode)
+;(add-hook 'message-mode-hook 'mc-install-write-mode)
+;;(add-hook 'mail-mode-hook 'mc-install-write-mode)
+;(add-hook 'news-reply-mode-hook 'mc-install-write-mode)
+;; If you have more than one key, specify the one to use
+;(setq mc-gpg-user-id "Aaron Toponce <aaron.toponce@gmail.com>") ; where `address' is preferentially put between < and >
+;; Always sign encrypted messages
+;(setq mc-pgp-always-sign t)
+;; How long should mailcrypt remember your passphrase
+;(setq mc-passwd-timeout 600)
+;; Automagically sign all messages
+;(add-hook 'message-send-hook 'will-you-sign)
+;(defun will-you-sign ()
+;        (load-library "mc-toplev")
+;       (interactive)
+;        (if (y-or-n-p "Do you want to sign this message? ")
+;                (mc-sign-message)))
+;(add-hook 'gnus-summary-mode-hook 'mc-install-read-mode)
+;(add-hook 'message-mode-hook 'mc-install-write-mode)
+;(add-hook 'news-reply-mode-hook 'mc-install-write-mode)
 
 ; encrypted .authinfo
 (require 'epa-file)
-(epa-file-enable)
+;(epa-file-enable)
 (setq epa-file-cache-passphrase-for-symmetric-encryption t)
 
 (require 'auth-source)
 (setq auth-sources '((:source "~/.authinfo.gpg" :host t :port t)))
 
+(setq user-mail-address "aaron.toponce@gmail.com"
+      user-full-name "Aaron Toponce"
+;      smtpmail-smtp-server "smtp.gmail.com"
+;      smtpmail-auth-credentials (expand-file-name "~/.authinfo.gpg")
+)
+
 ; default imap account
 (setq gnus-select-method
       '(nnimap "gmail"
-	   (nnimap-authinfo-file "~/.authinfo.gpg")
+	   ;(nnimap-authinfo-file "~/.authinfo.gpg")
            (nnimap-address "imap.gmail.com")
            (nnimap-server-port 993)
            (nnimap-stream ssl)))
@@ -72,23 +79,28 @@
 ; additional imap accounts
 (setq gnus-secondary-select-methods
       '((nnimap "xmission"
-                (nnimap-authinfo-file "~/.authinfo.gpg")
+                ;(nnimap-authinfo-file "~/.authinfo.gpg")
                 (nnimap-address "zimbra.xmission.com")
                 (nnimap-server-port 993)
                 (nnimap-stream ssl))
         (nnimap "utah"
-                (nnimap-authinfo-file "~/.authinfo.gpg")
+                ;(nnimap-authinfo-file "~/.authinfo.gpg")
                 (nnimap-address "imap.umail.utah.edu")
                 (nnimap-server-port 993)
                 (nnimap-stream ssl))))
 
 ; let gnus change the "From:" based on the current group we're in
 (setq gnus-posting-styles
-      '(("gmail"
+      '(("*"
+	 (header "OpenPGP" "id=8086060F; url=http://ae7.st/s/pgp; preference=signencrypt")
+	 (header "Crypto-Challenge" "iVBORw0KGgoAAAANSUhEUgAAAFwAAABcAQMAAADZIUAbAAAABlBMVEX///8AAABVwtN+AAAAS0lEQVQ4jbXSUQoAIAhEwYXuf2NhS1O6QM+EnH4qUfoaK2bBcJysnUUVWYlGput3JGxPD1H00byAQ17r20YW8QaChXr2UHgiUHyNDSRgxkgDsThDAAAAAElFTkSuQmCC")
+	 (header "Crypto-Hint" "image/png")
+	 )
+	("gmail"
 	 (address "aaron.toponce@gmail.com")
 	 (signature-file "~/src/dotfiles/.signature.gmail"))
 	("xmission"
-	 (address "at@xmission.com")
+	 (address "atoponce@xmission.com")
 	 (signature-file "~/src/dotfiles/.signature.xmission"))
 	("utah"
 	 (address "aaron.toponce@utah.edu")
@@ -151,10 +163,9 @@
           finally (error "Cannot infer SMTP information."))))
 
 (defadvice smtpmail-via-smtp
-  (before smtpmail-via-smtp-ad-change-smtp (recipient smtpmail-text-buffer))
-  "Call `change-smtp' before every `smtpmail-via-smtp'."
-  (with-current-buffer smtpmail-text-buffer (change-smtp)))
- 
+  (before change-smtp-by-message-from-field (recipient buffer &optional ask) activate)
+  (with-current-buffer buffer (change-smtp)))
+
 (ad-activate 'smtpmail-via-smtp)
 
 ; choose plain text when possible
