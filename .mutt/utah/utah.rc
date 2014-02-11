@@ -3,6 +3,6 @@ source "gpg2 --no-tty -qd ~/.mutt/utah/utah.gpg |"
 set record="+Sent Items"
 set spoolfile="+INBOX"
 set postponed="+Drafts"
-set realname="Aaron Toponce
-set signature="~/.mutt/utah/signature.txt"
+set realname="Aaron Toponce"
+set signature="~/src/dotfiles/.signature.gmail"
 # vim: set ft=muttrc:
