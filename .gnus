@@ -1,3 +1,9 @@
+; getting google contacts in order
+; FIXME
+; having oauth problems. need credentials somewhere?
+(require 'google-contacts-gnus)
+(require 'google-contacts-message)
+
 ; formatting
 (setq-default
  gnus-summary-line-format "%U%R%z %(%&user-date;  %-15,15f  %B%s%)\n"
@@ -29,30 +35,19 @@
 (setq hashcash-default-payment 26)
 
 ; gpg stuff
-;(load-library "mailcrypt")
-;(mc-setversion "gpg")
-;(autoload 'mc-install-write-mode "mailcrypt" nil t)
-;(autoload 'mc-install-read-mode "mailcrypt" nil t)
-;(add-hook 'gnus-summary-mode-hook 'mc-install-read-mode)
-;(add-hook 'message-mode-hook 'mc-install-write-mode)
-;;(add-hook 'mail-mode-hook 'mc-install-write-mode)
-;(add-hook 'news-reply-mode-hook 'mc-install-write-mode)
-;; If you have more than one key, specify the one to use
-;(setq mc-gpg-user-id "Aaron Toponce <aaron.toponce@gmail.com>") ; where `address' is preferentially put between < and >
-;; Always sign encrypted messages
-;(setq mc-pgp-always-sign t)
-;; How long should mailcrypt remember your passphrase
-;(setq mc-passwd-timeout 600)
-;; Automagically sign all messages
-;(add-hook 'message-send-hook 'will-you-sign)
-;(defun will-you-sign ()
-;        (load-library "mc-toplev")
-;       (interactive)
-;        (if (y-or-n-p "Do you want to sign this message? ")
-;                (mc-sign-message)))
-;(add-hook 'gnus-summary-mode-hook 'mc-install-read-mode)
-;(add-hook 'message-mode-hook 'mc-install-write-mode)
-;(add-hook 'news-reply-mode-hook 'mc-install-write-mode)
+; FIXME
+; not signing by default
+(require 'pgg)
+; verify/decrypt only if mml knows about the protocl used
+(setq mm-verify-option 'known)
+(setq mm-decrypt-option 'known)
+; Here we make button for the multipart 
+(setq gnus-buttonized-mime-types '("multipart/encrypted" "multipart/signed"))
+; Automatically sign when sending mails
+(add-hook 'message-send-hook 'mml-secure-message-sign-pgpmime)
+; Enough explicit settings
+(setq pgg-passphrase-cache-expiry 300)
+(setq pgg-default-user-id "0x8086060F")
 
 ; encrypted .authinfo
 (require 'epa-file)
@@ -91,11 +86,11 @@
 
 ; let gnus change the "From:" based on the current group we're in
 (setq gnus-posting-styles
-      '(("*"
-	 (header "OpenPGP" "id=8086060F; url=http://ae7.st/s/pgp; preference=signencrypt")
-	 (header "Crypto-Challenge" "iVBORw0KGgoAAAANSUhEUgAAAFwAAABcAQMAAADZIUAbAAAABlBMVEX///8AAABVwtN+AAAAS0lEQVQ4jbXSUQoAIAhEwYXuf2NhS1O6QM+EnH4qUfoaK2bBcJysnUUVWYlGput3JGxPD1H00byAQ17r20YW8QaChXr2UHgiUHyNDSRgxkgDsThDAAAAAElFTkSuQmCC")
-	 (header "Crypto-Hint" "image/png")
-	 )
+      '((".*"
+	 ("OpenPGP" "id=8086060F; url=http://ae7.st/s/pgp; preference=signencrypt")
+	 ("Crypto-Challenge" "iVBORw0KGgoAAAANSUhEUgAAAFwAAABcAQMAAADZIUAbAAAABlBMVEX///8AAABVwtN+AAAAS0lEQVQ4jbXSUQoAIAhEwYXuf2NhS1O6QM+EnH4qUfoaK2bBcJysnUUVWYlGput3JGxPD1H00byAQ17r20YW8QaChXr2UHgiUHyNDSRgxkgDsThDAAAAAElFTkSuQmCC")
+	 ("Crypto-Hint" "image/png")
+	 (signature-file "~/src/dotfiles/.signature.gmail"))
 	("gmail"
 	 (address "aaron.toponce@gmail.com")
 	 (signature-file "~/src/dotfiles/.signature.gmail"))
@@ -169,5 +164,17 @@
 (ad-activate 'smtpmail-via-smtp)
 
 ; choose plain text when possible
+; FIXME
+; not converting HTML to plain text
 (setq mm-discouraged-alternatives '("text/html" "text/richtext"))
-(setq gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
+(setq mm-inline-override-types '("text/html" "text/richtext"))
+;(setq gnus-ignored-newsgroups "^to\\.\\|^[0-9. ]+\\( \\|$\\)\\|^[\"]\"[#'()]")
+;(add-to-list 'gnus-buttonized-mime-types '"text/html")
+;(add-to-list 'gnus-article-treat-types "text/html")
+;(add-to-list 'mm-text-html-renderer-alist
+;             '(vilistextum mm-inline-render-with-file nil
+;               "vilistextum" "-l" "-r" "-c" "-s" file "-"))
+;(add-to-list 'mm-text-html-washer-alist 
+;             '(vilistextum mm-inline-wash-with-file nil
+;               "vilistextum" "-l" "-r" "-c" "-s" file "-"))
+;(setq mm-text-html-renderer 'vilistextum)

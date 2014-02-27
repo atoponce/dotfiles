@@ -1,5 +1,6 @@
 (setq backup-directory-alist `(("." . "~/.emacs.d/")))
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+(add-to-list 'load-path "~/.emacs.d/google-contacts")
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
