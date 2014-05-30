@@ -1,7 +1,6 @@
-colorscheme zenburn                 " set the theme
-let g:zenburn_high_Contrast=1       " higher contrast for the zenburn color scheme
+colorscheme twilight                " set the theme
 set autoindent                      " auto indent tabs when pressing enter
-set background=dark                 " set the background
+set colorcolumn=80                  " column warning line at 80 characters
 set cryptmethod=blowfish            " use the blowfish rather than default "zip" method
 set expandtab                       " convert tabs to spaces
 set guifont=Liberation\ Mono\ 8     " set the appropriate font
