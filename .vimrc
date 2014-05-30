@@ -1,4 +1,4 @@
-colorscheme twilight                " set the theme
+colorscheme twilight256             " set the theme
 set autoindent                      " auto indent tabs when pressing enter
 set colorcolumn=80                  " column warning line at 80 characters
 set cryptmethod=blowfish            " use the blowfish rather than default "zip" method
