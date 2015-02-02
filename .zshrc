@@ -79,7 +79,7 @@ alias asdf="setxkbmap dvorak"
 alias aoeu="setxkbmap us"
 
 # general purpose aliases
-alias ls='ls --color=always -F'
+alias ls='ls --color=auto -F'
 alias .='source'
 alias achilles='ssh achilles' # rely on ~/.ssh/config for fqdn and options
 alias poseidon='ssh poseidon'
