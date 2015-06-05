@@ -94,6 +94,14 @@ alias irc="sudo python /usr/local/bin/email-0mq.py& weechat-curses"
 expandurl() { wget --spider -O - -S $1 2>&1 | awk '/^Location/ {gsub("?utm_.*",""); a=$2} END {print a}' }
 longurl() { curl -s "http://api.longurl.org/v2/expand?url=${1}&format=php" | awk -F '"' '{gsub("?utm_.*",""); print $4}'}
 shorturl() { wget -qO - 'http://ae7.st/s/yourls-api.php?signature=8e4f5d1d8d&action=shorturl&format=simple&url='$1; echo}
+gen-pass(){
+    echo "Generating passwords with 80-bits of entropy"
+    [[ $(echo "$1" | grep -E '[0-9]+') ]] && NUM="$1" || NUM=1
+    for I in $(seq 1 "$NUM"); do
+        strings /dev/urandom | grep -o '[a-hjkmnp-z2-9]' | head -n 16 | tr -d '\n'
+        echo # blank string
+    done
+}
 #source ~/src/scripts/pastebin.sh
 
 if which dpkg &> /dev/null; then
