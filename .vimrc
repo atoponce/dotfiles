@@ -1,4 +1,4 @@
- " colorscheme zenburn             " set the theme
+ colorscheme hybrid             " set the theme
 if has("autocmd")
   augroup GPGASCII
     au!
