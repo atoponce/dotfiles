@@ -98,7 +98,7 @@ gen-pass(){
     echo "Generating passwords with 80-bits of entropy"
     [[ $(echo "$1" | grep -E '[0-9]+') ]] && NUM="$1" || NUM=1
     for I in $(seq 1 "$NUM"); do
-        strings /dev/urandom | grep -o '[a-hjkmnp-z2-9]' | head -n 16 | tr -d '\n'
+        strings /dev/urandom | grep -o '[a-hjkmnp-z2-9-]' | head -n 16 | tr -d '\n'
         echo # blank string
     done
 }
