@@ -1,4 +1,14 @@
-colorscheme twilight256             " set the theme
+ " colorscheme zenburn             " set the theme
+if has("autocmd")
+  augroup GPGASCII
+    au!
+    au BufReadPost *.asc :%!gpg -q -d
+    au BufReadPost *.asc |redraw
+    au BufWritePre *.asc :%!gpg -q -e -a
+    au BufWritePost *.asc u
+    au VimLeave *.asc :!clear
+  augroup END
+endif " has ("autocmd")
 set autoindent                      " auto indent tabs when pressing enter
 set colorcolumn=80                  " column warning line at 80 characters
 set cryptmethod=blowfish            " use the blowfish rather than default "zip" method
