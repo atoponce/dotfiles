@@ -102,6 +102,44 @@ gen-pass(){
         echo # blank string
     done
 }
+shell-colors() {
+    hexes=($(xrdb -query | sed -n 's/.*color\([0-9]\)/\1/p' | sort -nu | cut -f2))
+    names=(black red green yellow blue magenta cyan white)
+    
+    # add -v argument for verbose output
+    if [[ $# -eq 1 && $1 == "-v" ]]; then
+        printf "┌────────────────────────────────────────────────────────┐\n"
+        printf "│ Preview        Name         Bash      Urxvt      Hex   │\n"
+        printf "├────────────────────────────────────────────────────────┤\n"
+        for i in {0..7}; do
+            #printf "%-35b" "│\e[0;$((30+$i))m ████████   $names[i+1]"
+            printf "│\e[0;$((30+$i))m ████████   $names[i+1]\t"
+            printf %s "\e[0;$((30+$i))m   "
+            printf "\t"
+            printf "%-10b" "color$i\t"
+            printf "$hexes[i+1]\e[0m │\n"
+
+            #printf "%-35b" "│\e[1;$((30+$i))m ████████   bold $names[i+1]"
+            printf "│\e[1;$((30+$i))m ████████   bold $names[i+1]\t"
+            printf %s "\e[1;$((30+$i))m   "
+            printf "\t"
+            printf "%-10b" "color$((i+8))\t"
+            printf "$hexes[i+9]\e[0m │\n"
+        done
+        printf "└────────────────────────────────────────────────────────┘\n"
+    else
+        printf "\e[1;37m     BLK        RED        GRN        YEL        BLU        MAG        CYN        WHT\n"
+        printf "────────────────────────────────────────────────────────────────────────────────────────\e[0m\n"
+        for i in {0..7}; do
+            printf "\e[$((30+$i))m █ $hexes[i+1] \e[0m"
+        done
+        printf "\n"
+        for i in {8..15}; do
+            printf "\e[1;$((22+$i))m █ $hexes[i+1] \e[0m"
+        done
+        printf "\n"
+    fi
+}
 #source ~/src/scripts/pastebin.sh
 
 if which dpkg &> /dev/null; then
