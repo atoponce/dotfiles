@@ -106,7 +106,7 @@ gen-xkcd-pass(){
     for I in $(seq 1 "$NUM"); do
         WORDS=$(echo $DICT|shuf -n 6|paste -sd ' ' -)
         XKCD=$(echo -n "$WORDS"|sed 's/ //g')
-        echo "$XKCD ($WORDS)"|awk '{x=$2" "$3" "$4" "$5" "$6" "$7; printf "%-36s %s\n", $1, x}'
+        echo "$XKCD ($WORDS)"|awk '{x=$1;$1="";printf "%-36s %s\n", x, $0}'
     done | column
 }
 shell-colors() {
