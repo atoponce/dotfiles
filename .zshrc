@@ -105,7 +105,6 @@ gen-xkcd-pass(){
     LC_CTYPE=C
     [[ $(echo "$1"|grep -E '[0-9]+') ]] && NUM="$1" || NUM=1
     DICT=$(grep -E '^[a-Z]{3,6}$' /usr/share/dict/words)
-    DICTLEN=$(echo $DICT | wc -l)
     for I in $(seq 1 "$NUM"); do
         WORDS=$(echo $DICT|shuf -n 6|paste -sd ' ' -)
         XKCD=$(echo -n "$WORDS"|sed 's/ //g')
