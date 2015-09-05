@@ -104,11 +104,13 @@ gen-monkey-pass(){
 gen-xkcd-pass(){
     LC_CTYPE=C
     [[ $(echo "$1"|grep -E '[0-9]+') ]] && NUM="$1" || NUM=1
+    DICT=$(grep -E '^[a-Z]{3,6}$' /usr/share/dict/words)
+    DICTLEN=$(echo $DICT | wc -l)
     for I in $(seq 1 "$NUM"); do
-        WORDS=$(grep -E '^[a-Z]{3,6}$' /usr/share/dict/words|shuf -n 6|paste -sd ' ' -)
+        WORDS=$(echo $DICT|shuf -n 6|paste -sd ' ' -)
         XKCD=$(echo -n "$WORDS"|sed 's/ //g')
         echo "$XKCD ($WORDS)"|awk '{x=$2" "$3" "$4" "$5" "$6" "$7; printf "%-36s %s\n", $1, x}'
-    done
+    done | column
 }
 shell-colors() {
     hexes=($(xrdb -query | sed -n 's/.*color\([0-9]\)/\1/p' | sort -nu | cut -f2))
