@@ -93,20 +93,39 @@ alias irc="sudo python /usr/local/bin/email-0mq.py& weechat-curses"
 # general purpose functions
 expandurl() { wget --spider -O - -S $1 2>&1 | awk '/^Location/ {gsub("?utm_.*",""); a=$2} END {print a}' }
 longurl() { curl -s "http://api.longurl.org/v2/expand?url=${1}&format=php" | awk -F '"' '{gsub("?utm_.*",""); print $4}'}
-shorturl() { wget -qO - 'http://ae7.st/s/yourls-api.php?signature=8e4f5d1d8d&action=shorturl&format=simple&url='$1; echo}
-gen-monkey-pass(){
-    [[ $(echo "$1"|grep -E '[0-9]+') ]] && NUM="$1" || NUM=1
-    for I in $(seq 1 "$NUM"); do
-        LC_CTYPE=C strings /dev/urandom|grep -o '[a-hjkmnp-z2-9-]'|head -n 16|paste -sd '' -
+shorturl() { wget -qO - 'http://ae7.st/s/yourls-api.php?signature=8e4f5d1d8d&action=shorturl&format=simple&url='"$1"; echo}
+shuff(){ 
+    if [ $(command -v shuf) ]; then
+        shuf -n "$1"
+    elif [ $(command -v shuffle) ]; then
+        shuffle -f /dev/stdin -p "$1"
+    else
+        awk 'BEGIN{
+            "od -tu4 -N4 -A n /dev/urandom" | getline
+            srand(0+$0)
+        }
+        {print rand()"\t"$0}' | sort -n | cut -f 2 | head -n "$1"
+    fi
+}
+gen_monkey_pass(){
+    I=0
+    [ $(printf "$1" | grep -E '[0-9]+') ] && NUM="$1" || NUM="1"
+    until [ "$I" -eq "$NUM" ]; do
+        I=$((I+1))
+        LC_CTYPE=C strings /dev/urandom | \
+            grep -o '[a-hjkmnp-z2-9-]' | head -n 24 | paste -s -d \\0 /dev/stdin
     done | column
 }
-gen-xkcd-pass(){
-    [[ $(echo "$1"|grep -E '[0-9]+') ]] && NUM="$1" || NUM=1
-    DICT=$(LC_CTYPE=C grep -E '^[a-Z]{3,6}$' /usr/share/dict/words)
-    for I in $(seq 1 "$NUM"); do
-        WORDS=$(echo $DICT|shuf -n 6|paste -sd ' ' -)
-        XKCD=$(echo -n "$WORDS"|sed 's/ //g')
-        echo "$XKCD ($WORDS)"|awk '{x=$1;$1="";printf "%-36s %s\n", x, $0}'
+gen_xkcd_pass(){
+    I=0
+    [ $(printf "$1" | grep -E '[0-9]+') ] && NUM="$1" || NUM="1"
+    [ $(uname) = "SunOS" ] && FILE="/usr/dict/words" || FILE="/usr/share/dict/words"
+    DICT=$(LC_CTYPE=C grep -E '^[a-zA-Z]{3,6}$' "$FILE")
+    until [ "$I" -eq "$NUM" ]; do
+        I=$((I+1))
+        WORDS=$(printf "$DICT" | shuff 6 | paste -s -d ' ' /dev/stdin)
+        XKCD=$(printf "$WORDS" | sed 's/ //g')
+        printf "$XKCD ($WORDS)" | awk '{x=$1;$1="";printf "%-36s %s\n", x, $0}'
     done | column
 }
 shell-colors() {
@@ -215,3 +234,9 @@ source ~/.zsh_prompt
 #    echo $$ > /dev/cgroup/cpu/user/$$/tasks
 #    echo "1" > /dev/cgroup/cpu/user/$$/notify_on_release
 #fi
+
+PATH="/home/atoponce/perl5/bin${PATH+:}${PATH}"; export PATH;
+PERL5LIB="/home/atoponce/perl5/lib/perl5${PERL5LIB+:}${PERL5LIB}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/home/atoponce/perl5${PERL_LOCAL_LIB_ROOT+:}${PERL_LOCAL_LIB_ROOT}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/home/atoponce/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/home/atoponce/perl5"; export PERL_MM_OPT;
