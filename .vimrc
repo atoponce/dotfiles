@@ -1,17 +1,25 @@
- colorscheme hybrid             " set the theme
-if has("autocmd")
-  augroup GPGASCII
-    au!
-    au BufReadPost *.asc :%!gpg -q -d
-    au BufReadPost *.asc |redraw
-    au BufWritePre *.asc :%!gpg -q -e -a
-    au BufWritePost *.asc u
-    au VimLeave *.asc :!clear
-  augroup END
-endif " has ("autocmd")
+colorscheme hybrid                  " set the theme
+
+" must install vim-airline
+"   $ git clone https://github.com/bling/vim-airline
+" manually copy or symbolic link everything into ~/.vim/
+let g:airline#extensions#tabline#enabled = 1
+
+" set the bubblegum.vim airline theme
+let g:airline_theme='bubblegum'
+
+if !exists('g:airline_symbols')
+  let g:airline_symbols = {}
+endif
+let g:airline_symbols.space = "\ua0"
+
+
+nnoremap <Space> za
+vnoremap <Space> za
+
 set autoindent                      " auto indent tabs when pressing enter
 set colorcolumn=80                  " column warning line at 80 characters
-set cryptmethod=blowfish            " use the blowfish rather than default "zip" method
+set cryptmethod=blowfish2           " use the blowfish rather than default "zip" method
 set expandtab                       " convert tabs to spaces
 set guifont=Liberation\ Mono\ 8     " set the appropriate font
 set guioptions='aegit'              " set mouse options, and otherwise
@@ -31,3 +39,41 @@ set t_Co=256                        " tell vim that 256 colors are available
 set tabstop=8                       " if the tab character is identified, use an 8 character width
 set textwidth=79                    " wrap text at 75 lines
 syntax enable                       " enable syntax highlighting for config files and source code
+
+if has("autocmd")
+    """"""""""""""""""""
+    " GnuPG Extensions "
+    """"""""""""""""""""
+
+    " Tell the GnuPG plugin to armor new files.
+    let g:GPGPreferArmor=1
+
+    " Tell the GnuPG plugin to sign new files.
+    let g:GPGPreferSign=1
+
+    " Use gpg(2) to take advantage of the agent.
+    let g:GPGExecutable="/usr/bin/gpg2"
+
+    " Take advantage of the running agent
+    let g:GPGUseAgent=1
+
+    augroup GnuPGExtra
+	" Set extra file options.
+	autocmd BufReadCmd,FileReadCmd *.\(gpg\|asc\|pgp\) call SetGPGOptions()
+	" Automatically close unmodified files after inactivity.
+	autocmd CursorHold *.\(gpg\|asc\|pgp\) quit
+    augroup END
+
+    function SetGPGOptions()
+	" Set the filetype for syntax highlighting.
+	set filetype=gpgpass
+	" Set updatetime to 1 minute.
+	set updatetime=60000
+	" Fold at markers.
+	set foldmethod=marker
+	" Automatically close all folds.
+	set foldclose=all
+	" Only open folds with insert commands.
+	set foldopen=insert
+    endfunction
+endif " has ("autocmd")

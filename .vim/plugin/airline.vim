@@ -1,0 +1,1 @@
+/home/atoponce/src/vim-airline/plugin/airline.vim
