@@ -5,7 +5,7 @@ set imap_check_subscribed
 set postponed="+Drafts"
 set realname="Aaron Toponce"
 set record="+Sent"
-set signature="~/src/dotfiles/.signature.xmission"
+set signature="~/src/dotfiles/.mutt/xmission/signature.txt"
 set ssl_starttls="yes"
 set ssl_force_tls="yes"
 # vim: set ft=muttrc:

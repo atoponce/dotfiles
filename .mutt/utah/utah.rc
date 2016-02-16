@@ -4,5 +4,5 @@ set record="+Sent Items"
 set spoolfile="+INBOX"
 set postponed="+Drafts"
 set realname="Aaron Toponce"
-set signature="~/src/dotfiles/.signature.utah"
+set signature="~/src/dotfiles/.mutt/utah/signature.txt"
 # vim: set ft=muttrc:

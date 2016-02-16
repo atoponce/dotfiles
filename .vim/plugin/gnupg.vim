@@ -1,0 +1,1 @@
+/home/atoponce/src/vim-gnupg/plugin/gnupg.vim
