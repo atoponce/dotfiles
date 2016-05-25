@@ -59,7 +59,7 @@ if has("autocmd")
 
     augroup GnuPGExtra
 	" Set extra file options.
-	autocmd BufReadCmd,FileReadCmd *.\(gpg\|asc\|pgp\) call SetGPGOptions()
+        autocmd BufReadCmd,FileReadCmd *.\(gpg\|asc\|pgp\) call SetGPGOptions()
 	" Automatically close unmodified files after inactivity.
 	autocmd CursorHold *.\(gpg\|asc\|pgp\) quit
     augroup END
@@ -76,4 +76,30 @@ if has("autocmd")
 	" Only open folds with insert commands.
 	set foldopen=insert
     endfunction
+
 endif " has ("autocmd")
+
+function AESEncrypt()
+    set secure
+    set viminfo=
+    set noswapfile
+    set nobackup
+    set nowritebackup
+    set history=0
+    set noshelltemp
+    %!aespipe -e aes256 -T | base64
+endfunction
+
+function AESDecrypt()
+    set secure
+    set viminfo=
+    set noswapfile
+    set nobackup
+    set nowritebackup
+    set history=0
+    set noshelltemp
+    %!base64 -d | aespipe -e aes256 -T
+endfunction
+
+map <silent> <F7> :call AESEncrypt()<Esc>
+map <silent> <F8> :call AESEncrypt()<Esc>

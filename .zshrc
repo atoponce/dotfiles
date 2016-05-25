@@ -91,7 +91,7 @@ alias usbmodem="sudo pppd /dev/ttyACM0 call ppp-script-treo"
 alias irc="sudo python /usr/local/bin/email-0mq.py& weechat-curses"
 
 # general purpose functions
-expandurl() { wget --spider -O - -S $1 2>&1 | awk '/^Location/ {gsub("?utm_.*",""); a=$2} END {print a}' }
+expandurl() { torsocks wget --spider -O - -S $1 2>&1 | awk '/^Location/ {gsub("\?utm_.*$",""); a=$2} END {print a}' }
 longurl() { curl -s "http://api.longurl.org/v2/expand?url=${1}&format=php" | awk -F '"' '{gsub("?utm_.*",""); print $4}'}
 shorturl() { wget -qO - 'http://ae7.st/s/yourls-api.php?signature=8e4f5d1d8d&action=shorturl&format=simple&url='"$1"; echo}
 shuff(){ 
@@ -168,30 +168,27 @@ shell-colors() {
 }
 #source ~/src/scripts/pastebin.sh
 
-if which dpkg &> /dev/null; then
-    # apt aliases for Debian-based systems
-    # alias pkg-clean="sudo apt-get autoclean && sudo apt-get autoremove && sudo aptitude clean && sudo aptitude remove"
-    # alias pkg-filesearch="apt-file search"
-    # aleas pkg-p
-    alias apt-clean="sudo apt-get autoclean && sudo apt-get autoremove && sudo aptitude clean && sudo aptitude remove"
-    if which apt-file > /dev/null; then
-        alias apt-filesearch="apt-file search";
-    fi
-    alias apt-install="sudo aptitude -R install"
-    if which deborphan > /dev/null; then
-        alias apt-orphand="sudo deborphan | xargs sudo aptitude -y purge";
-        #alias apt-clean="apt-clean && apt-orphand"
-    fi
-    alias apt-reinstall="sudo aptitude -R reinstall"
-    alias apt-remove="sudo aptitude remove"
-    alias apt-search="aptitude search"
-    alias apt-show="aptitude show"
-    alias apt-update="sudo aptitude update"
-    alias apt-upgrade="sudo aptitude update && sudo aptitude safe-upgrade"
-elif which rpm > /dev/null; then
-    # yum aliases for Red Hat-based systems
-    #alias yum-clean="sudo "
-fi
+#if which dpkg &> /dev/null; then
+#    # apt aliases for Debian-based systems
+#    # alias pkg-clean="sudo apt-get autoclean && sudo apt-get autoremove && sudo aptitude clean && sudo aptitude remove"
+#    # alias pkg-filesearch="apt-file search"
+#    # aleas pkg-p
+#    alias apt-clean="sudo apt-get autoclean && sudo apt autoremove && sudo aptitude clean && sudo apt remove"
+#    alias apt-install="sudo apt install"
+#    if which deborphan > /dev/null; then
+#        alias apt-orphand="sudo deborphan | xargs sudo apt purge";
+#        #alias apt-clean="apt-clean && apt-orphand"
+#    fi
+#    alias apt-reinstall="sudo aptitude -R reinstall"
+#    alias apt-remove="sudo apt remove"
+#    alias apt-search="apt search"
+#    alias apt-show="apt show"
+#    alias apt-update="sudo apt update"
+#    alias apt-upgrade="sudo apt update && sudo apt upgrade"
+#elif which rpm > /dev/null; then
+#    # yum aliases for Red Hat-based systems
+#    #alias yum-clean="sudo "
+#fi
 
 # directory shortcuts
 alias home="cd ~/"
