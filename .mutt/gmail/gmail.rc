@@ -5,6 +5,6 @@ set record="+[Gmail]/Sent Mail"
 set spoolfile="+INBOX"
 set postponed="+[Gmail]/Drafts"
 set realname="Aaron Toponce"
-set signature="~/src/dotfiles/.signature.gmail"
+set signature="~/src/dotfiles/.mutt/gmail/signature.txt"
 source ~/.mutt/gmail/gmail_lists
 # vim: set ft=muttrc:
