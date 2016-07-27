@@ -124,8 +124,9 @@ gen_xkcd_pass(){
     until [ "$I" -eq "$NUM" ]; do
         I=$((I+1))
         WORDS=$(printf "$DICT" | shuff 6 | paste -s -d ' ' /dev/stdin)
-        XKCD=$(printf "$WORDS" | sed 's/ //g')
-        printf "$XKCD ($WORDS)" | awk '{x=$1;$1="";printf "%-36s %s\n", x, $0}'
+        XKCD=$(printf "$WORDS" | sed 's/ /./g')
+        #printf "$XKCD ($WORDS)" | awk '{x=$1;$1="";printf "%-36s %s\n", x, $0}'
+        printf "$XKCD" | awk '{x=$1;$1="";printf "%-36s %s\n", x, $0}'
     done | column
 }
 shell-colors() {
