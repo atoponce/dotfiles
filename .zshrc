@@ -114,8 +114,7 @@ gen_xkcd_pass() {
     DICT=$(LC_CTYPE=C grep -E '^[a-zA-Z]{3,6}$' "$FILE")
     until [ "$I" -eq "$NUM" ]; do
         I=$((I+1))
-        WORDS=$(printf "$DICT" | shuff 6 | paste -s -d ' ' /dev/stdin)
-        XKCD=$(printf "$WORDS" | sed 's/ /./g')
+        XKCD=$(printf "$DICT" | shuff 6 | paste -s -d '.' /dev/stdin)
         printf "$XKCD\n"
     done | column
 }
