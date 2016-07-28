@@ -57,11 +57,14 @@ if has("autocmd")
     " Take advantage of the running agent
     let g:GPGUseAgent=1
 
+    " Override default set of file patterns
+    let g:GPGFilePattern='*.\(gpg\|asc\|pgp\|pw\)'
+
     augroup GnuPGExtra
 	" Set extra file options.
-        autocmd BufReadCmd,FileReadCmd *.\(gpg\|asc\|pgp\) call SetGPGOptions()
+        autocmd BufReadCmd,FileReadCmd *.\(pw\) call SetGPGOptions()
 	" Automatically close unmodified files after inactivity.
-	autocmd CursorHold *.\(gpg\|asc\|pgp\) quit
+	autocmd CursorHold *.\(pw\) quit
     augroup END
 
     function SetGPGOptions()
@@ -76,30 +79,4 @@ if has("autocmd")
 	" Only open folds with insert commands.
 	set foldopen=insert
     endfunction
-
 endif " has ("autocmd")
-
-function AESEncrypt()
-    set secure
-    set viminfo=
-    set noswapfile
-    set nobackup
-    set nowritebackup
-    set history=0
-    set noshelltemp
-    %!aespipe -e aes256 -T | base64
-endfunction
-
-function AESDecrypt()
-    set secure
-    set viminfo=
-    set noswapfile
-    set nobackup
-    set nowritebackup
-    set history=0
-    set noshelltemp
-    %!base64 -d | aespipe -e aes256 -T
-endfunction
-
-map <silent> <F7> :call AESEncrypt()<Esc>
-map <silent> <F8> :call AESEncrypt()<Esc>
