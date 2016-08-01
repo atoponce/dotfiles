@@ -1,5 +1,3 @@
-auto_view text/calendar
-
 bind editor <Tab> complete-query
 bind editor ^T complete
 bind index "^" imap-fetch-mail
@@ -40,6 +38,7 @@ set imap_check_subscribed="yes"
 #set imap_list_subscribed="yes"
 set index_format="%4C %Z %{%b %d} %-15.15F (%?l?%4l&%4c?) %s"
 set mail_check="600"
+set mail_check_stats=yes
 set message_cachedir="~/.mutt/cache/bodies"
 set message_cache_clean="yes"
 set move="no"
@@ -47,6 +46,13 @@ set pager_index_lines="11"
 set query_command = "goobook query '%s'"
 set quote_regexp="^([ \t]*[|>:}])+"
 set reverse_alias="yes"
+set sidebar_format="%B%*  %S%?N?(%N)?%?F?[%F]?"
+set sidebar_folder_indent=yes
+set sidebar_indent_string=" "
+set sidebar_short_path=yes
+set sidebar_visible=yes  
+set sidebar_width=30
+
 set sort="threads"
 set sort_alias="alias"
 set sort_aux="last-date-received"
@@ -60,7 +66,6 @@ unignore x-mailer x-newsreader x-mailing-list
 unignore x-hashcash hashcash
 #unignore message-id in-reply-to references
 unignore openpgp
-auto_view text/html
 
 source ~/.mutt/gmail/gmail.rc
 source ~/.mutt/gnupg
