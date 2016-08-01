@@ -1,4 +1,5 @@
 .mutt/cache
+.mutt/hashcash.db
 .accounts.kdb.lock
 .vim/.netrwhist
 .emacs.d/*~
