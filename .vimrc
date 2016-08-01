@@ -71,7 +71,7 @@ if has("autocmd")
 	" Set the filetype for syntax highlighting.
 	set filetype=gpgpass
 	" Set updatetime to 1 minute.
-	set updatetime=60000
+	set updatetime=300000
 	" Fold at markers.
 	set foldmethod=marker
 	" Automatically close all folds.
