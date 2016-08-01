@@ -6,11 +6,15 @@ bind index \en sidebar-next-new
 bind index \eP sidebar-prev
 bind index \ep sidebar-prev-new
 bind index \eo sidebar-open
+bind index <F7> sidebar-page-up
+bind index <F8> sidebar-page-down
 bind pager \eN sidebar-next
 bind pager \en sidebar-next-new
 bind pager \eP sidebar-prev
 bind pager \ep sidebar-prev-new
 bind pager \eo sidebar-open
+bind pager <F7> sidebar-page-up
+bind pager <F8> sidebar-page-down
 
 color body brightyellow default "^\\[-- .*Hashcash.*"
 
