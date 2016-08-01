@@ -12,7 +12,7 @@ auto_view application/x-tcl
 auto_view application/RTF
 auto_view text/html
 auto_view text/x-vcard
-auto_view image/tiff
+auto_view image/*
 
 alternative_order text/enriched text/plain text
 # vim: set ft=muttrc:
