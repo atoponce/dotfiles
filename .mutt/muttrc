@@ -1,6 +1,8 @@
 bind editor <Tab> complete-query
 bind editor ^T complete
 bind index "^" imap-fetch-mail
+
+# sidebar bindings
 bind index \eN sidebar-next
 bind index \en sidebar-next-new
 bind index \eP sidebar-prev
