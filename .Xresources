@@ -7,17 +7,21 @@
 *scrollBar: false
 
 ## fonts
-*font: xft:DejaVu Sans Mono:pixelsize=11
-*boldFont: xft:DejaVu Sans Mono:bold:autohint=true
-*italicFont: xft:DejaVu Sans Mono:italic:autohint=true
-*boldItalicFont: xft:DejaVu Sans Mono:bold:italic:autohint=true
+## *font: xft:DejaVu Sans Mono:pixelsize=11
+## *boldFont: xft:DejaVu Sans Mono:bold:autohint=true
+## *italicFont: xft:DejaVu Sans Mono:italic:autohint=true
+## *boldItalicFont: xft:DejaVu Sans Mono:bold:italic:autohint=true
+*font: xft:Droid Sans Mono for Powerline:pixelsize=11
+*boldFont: xft:Droid Sans Mono for Powerline:bold:autohint=true
+*italicFont: xft:Droid Sans Mono for PowerlineDejaVu Sans Mono:italic:autohint=true
+*boldItalicFont: xft:Droid Sans Mono for PowerlineDejaVu Sans Mono:bold:italic:autohint=true
 
 *cutchars: "`\"\'&()*,:;<=>?[\\]^{|}$"
 
-#urxvt*background:   rgba:0000/0000/0000/cccc
-#urxvt*foreground:   #c8c8c8
-#urxvt*cursorColor:  #ffffff
-#urxvt*cursorColor2: #000000
+## urxvt*background:   rgba:0000/0000/0000/cccc
+## urxvt*foreground:   #c8c8c8
+## urxvt*cursorColor:  #ffffff
+## urxvt*cursorColor2: #000000
 
 ## url detection
 URxvt.perl-ext-common: default,matcher
