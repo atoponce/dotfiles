@@ -2,9 +2,7 @@
 umask 0002
 
 # Variables for xterm and such
-#TERM="xterm-256color"
-#export LC_ALL="en_US.UTF-8"
-#TERM="xterm"
+export LC_ALL="en_US.UTF-8"
 HISTFILE=~"/.histfile"
 HISTSIZE="10000"
 SAVEHIST="10000"
@@ -16,6 +14,8 @@ NNTPSERVER="snews.eternal-september.org"
 if [ "$TERM" = "putty" ]; then
     export LC_ALL=C
 fi
+
+TERM="xterm-256color"
 
 # modifying the PATH adding the sbin directories
 path+=( /sbin /usr/sbin /usr/local/sbin )
@@ -71,6 +71,9 @@ unset k
 [[ -n "${key[Down]}"   ]] && bindkey "${key[Down]}" down-line-or-history
 [[ -n "${key[Left]}"   ]] && bindkey "${key[Left]}" backward-char
 [[ -n "${key[Right]}"  ]] && bindkey "${key[Right]}" forward-char
+
+# general purpose aliases
+alias ls='ls --color=auto'
 
 # general purpose functions
 expandurl() {

@@ -52,7 +52,7 @@ if has("autocmd")
     let g:GPGPreferSign=1
 
     " Use gpg(2) to take advantage of the agent.
-    let g:GPGExecutable="/usr/bin/gpg2"
+    let g:GPGExecutable="/usr/bin/gpg1"
 
     " Take advantage of the running agent
     let g:GPGUseAgent=1
@@ -64,14 +64,14 @@ if has("autocmd")
 	" Set extra file options.
         autocmd BufReadCmd,FileReadCmd *.\(pw\) call SetGPGOptions()
 	" Automatically close unmodified files after inactivity.
-	autocmd CursorHold *.\(pw\) quit
+	" autocmd CursorHold *.\(pw\) quit
     augroup END
 
     function SetGPGOptions()
 	" Set the filetype for syntax highlighting.
 	set filetype=gpgpass
 	" Set updatetime to 1 minute.
-	set updatetime=300000
+	" set updatetime=300000
 	" Fold at markers.
 	set foldmethod=marker
 	" Automatically close all folds.
