@@ -72,6 +72,26 @@ unset k
 [[ -n "${key[Left]}"   ]] && bindkey "${key[Left]}" backward-char
 [[ -n "${key[Right]}"  ]] && bindkey "${key[Right]}" forward-char
 
+# setup SSH agent and keys
+start_ssh_agent() {
+    echo "ssh-agent is not running. Starting..."
+    eval $(ssh-agent | tee /run/user/$UID/ssh/agent.sh)
+    ssh-add
+}
+
+if [[ -d /run/user/$UID/ssh ]]; then
+    if [[ -f /run/user/$UID/ssh/agent.sh ]]; then
+        source /run/user/$UID/ssh/agent.sh > /dev/random
+        ps $SSH_AGENT_PID > /dev/random
+        if [[ $? != "0" ]]; then start_ssh_agent; fi
+    else
+        start_ssh_agent
+    fi
+else
+    mkdir /run/user/$UID/ssh
+    start_ssh_agent
+fi
+
 # general purpose aliases
 alias ls='ls --color=auto'
 
