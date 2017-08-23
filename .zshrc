@@ -109,9 +109,9 @@ shorturl() {
     echo
 }
 shuff() {
-    if [ $(command -v shuf) ]; then
+    if [ "$(command -v shuf)" ]; then
         shuf -n "$1"
-    elif [ $(command -v shuffle) ]; then
+    elif [ "$(command -v shuffle)" ]; then
         shuffle -f /dev/stdin -p "$1"
     else
         awk 'BEGIN{
@@ -123,8 +123,8 @@ shuff() {
 }
 gen_monkey_pass() {
     I=0
-    [ $(printf "$1" | grep -E '[0-9]+') ] && NUM="$1" || NUM="1"
-    until [ "$I" -eq "$NUM" ]; do
+    [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
+    until [ "$I" -eq "$num" ]; do
         I=$((I+1))
         LC_CTYPE=C strings /dev/urandom | \
             grep -o '[a-hjkmnp-z2-9-]' | head -n 24 | paste -s -d \\0 /dev/stdin
@@ -132,12 +132,12 @@ gen_monkey_pass() {
 }
 gen_xkcd_pass() {
     I=0
-    [ $(printf "$1" | grep -E '[0-9]+') ] && NUM="$1" || NUM="1"
-    [ $(uname) = "SunOS" ] && FILE="/usr/dict/words" || FILE="/usr/share/dict/words"
-    DICT=$(LC_CTYPE=C grep -E '^[a-zA-Z]{3,6}$' "$FILE")
-    until [ "$I" -eq "$NUM" ]; do
+    [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
+    [ $(uname) = "SunOS" ] && file="/usr/dict/words" || file="/usr/share/dict/words"
+    dict=$(LC_CTYPE=C grep -E '^[a-zA-Z]{3,6}$' "$file")
+    until [ "$I" -eq "$num" ]; do
         I=$((I+1))
-        printf "$DICT" | shuff 6 | paste -s -d '.' /dev/stdin
+        printf "$dict" | shuff 6 | paste -s -d '.' /dev/stdin
     done | column
 }
 
