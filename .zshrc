@@ -112,8 +112,10 @@ shuff() {
     if [ "$(command -v shuf)" ]; then
         shuf -n "$1"
     elif [ "$(command -v shuffle)" ]; then
+        # /dev/stdin is not POSIX
         shuffle -f /dev/stdin -p "$1"
     else
+        # /dev/urandom is not POSIX
         awk 'BEGIN{
             "od -tu4 -N4 -A n /dev/urandom" | getline
             srand(0+$0)
@@ -126,6 +128,7 @@ gen_monkey_pass() {
     [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
     until [ "$I" -eq "$num" ]; do
         I=$((I+1))
+        # /dev/urandom is not POSIX
         LC_CTYPE=C strings /dev/urandom | \
             grep -o '[a-hjkmnp-z2-9-]' | head -n 24 | paste -s -d \\0 /dev/stdin
     done | column
@@ -133,10 +136,12 @@ gen_monkey_pass() {
 gen_xkcd_pass() {
     I=0
     [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
+    # better to list all possible UNIX dictionary locations and iterate?
     [ $(uname) = "SunOS" ] && file="/usr/dict/words" || file="/usr/share/dict/words"
     dict=$(LC_CTYPE=C grep -E '^[a-zA-Z]{3,6}$' "$file")
     until [ "$I" -eq "$num" ]; do
         I=$((I+1))
+        # /dev/stdin is not POSIX
         printf "$dict" | shuff 6 | paste -s -d '.' /dev/stdin
     done | column
 }
