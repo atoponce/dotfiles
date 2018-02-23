@@ -3,20 +3,14 @@ bind editor ^T complete
 bind index "^" imap-fetch-mail
 
 # sidebar bindings
-bind index \eN sidebar-next
-bind index \en sidebar-next-new
-bind index \eP sidebar-prev
-bind index \ep sidebar-prev-new
-bind index \eo sidebar-open
-bind index <F7> sidebar-page-up
-bind index <F8> sidebar-page-down
-bind pager \eN sidebar-next
-bind pager \en sidebar-next-new
-bind pager \eP sidebar-prev
-bind pager \ep sidebar-prev-new
-bind pager \eo sidebar-open
-bind pager <F7> sidebar-page-up
-bind pager <F8> sidebar-page-down
+bind index,pager \eN sidebar-next
+bind index,pager \en sidebar-next-new
+bind index,pager \eP sidebar-prev
+bind index,pager \ep sidebar-prev-new
+bind index,pager \eo sidebar-open
+bind index,pager <F7> sidebar-page-up
+bind index,pager <F8> sidebar-page-down
+bind index,pager B sidebar-toggle-visible
 
 color body brightyellow default "^\\[-- .*Hashcash.*"
 
@@ -29,7 +23,7 @@ macro index Ax "<change-folder>imaps://zimbra.xmission.com<enter>"
 macro index Au "<change-folder>imaps://imap.umail.utah.edu<enter>"
 macro index M "T.\n;WN;^T.\n" "Mark all messages as read"
 
-my_hdr OpenPGP: id=8086060F\; url=http://ae7.st/s/pgp\; preference=signencrypt
+my_hdr OpenPGP: id=22EEE0488086060F\; url=http://ae7.st/s/pgp\; preference=signencrypt
 my_hdr Crypto-Challenge: iVBORw0KGgoAAAANSUhEUgAAAFwAAABcAQMAAADZIUAbAAAABlBMVEX///8A\
 	AABVwtN+AAAAS0lEQVQ4jbXSUQoAIAhEwYXuf2NhS1O6QM+EnH4qUfoaK2bBcJysnUUVWY\
 	lGput3JGxPD1H00byAQ17r20YW8QaChXr2UHgiUHyNDSRgxkgDsThDAAAAAElFTkSuQmCC
@@ -62,9 +56,10 @@ set pager_index_lines="11"
 set query_command = "goobook query '%s'"
 set quote_regexp="^([ \t]*[|>:}])+"
 set reverse_alias="yes"
-set sidebar_format="%B%*  %S%?N?(%N)?%?F?[%F]?"
 set sidebar_folder_indent=yes
+set sidebar_format="%B%*  %S%?N?(%N)?%?F?[%F]?"
 set sidebar_indent_string=" "
+set sidebar_new_mail_only=yes
 set sidebar_short_path=yes
 set sidebar_visible=yes  
 set sidebar_width=30
