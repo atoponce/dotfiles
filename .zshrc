@@ -2,9 +2,7 @@
 umask 0002
 
 # Variables for xterm and such
-#TERM="xterm-256color"
-#export LC_ALL="en_US.UTF-8"
-#TERM="xterm"
+export LC_ALL="en_US.UTF-8"
 HISTFILE=~"/.histfile"
 HISTSIZE="10000"
 SAVEHIST="10000"
@@ -16,6 +14,8 @@ NNTPSERVER="snews.eternal-september.org"
 if [ "$TERM" = "putty" ]; then
     export LC_ALL=C
 fi
+
+TERM="xterm-256color"
 
 # modifying the PATH adding the sbin directories
 path+=( /sbin /usr/sbin /usr/local/sbin )
@@ -72,6 +72,29 @@ unset k
 [[ -n "${key[Left]}"   ]] && bindkey "${key[Left]}" backward-char
 [[ -n "${key[Right]}"  ]] && bindkey "${key[Right]}" forward-char
 
+# setup SSH agent and keys
+start_ssh_agent() {
+    echo "ssh-agent is not running. Starting..."
+    eval $(ssh-agent | tee /run/user/$UID/ssh/agent.sh)
+    ssh-add
+}
+
+if [[ -d /run/user/$UID/ssh ]]; then
+    if [[ -f /run/user/$UID/ssh/agent.sh ]]; then
+        source /run/user/$UID/ssh/agent.sh > /dev/random
+        ps $SSH_AGENT_PID > /dev/random
+        if [[ $? != "0" ]]; then start_ssh_agent; fi
+    else
+        start_ssh_agent
+    fi
+else
+    mkdir /run/user/$UID/ssh
+    start_ssh_agent
+fi
+
+# general purpose aliases
+alias ls='ls --color=auto'
+
 # general purpose functions
 expandurl() {
     torsocks wget --spider -O - -S $1 2>&1 | \
@@ -86,11 +109,13 @@ shorturl() {
     echo
 }
 shuff() {
-    if [ $(command -v shuf) ]; then
+    if [ "$(command -v shuf)" ]; then
         shuf -n "$1"
-    elif [ $(command -v shuffle) ]; then
+    elif [ "$(command -v shuffle)" ]; then
+        # /dev/stdin is not POSIX
         shuffle -f /dev/stdin -p "$1"
     else
+        # /dev/urandom is not POSIX
         awk 'BEGIN{
             "od -tu4 -N4 -A n /dev/urandom" | getline
             srand(0+$0)
@@ -100,21 +125,24 @@ shuff() {
 }
 gen_monkey_pass() {
     I=0
-    [ $(printf "$1" | grep -E '[0-9]+') ] && NUM="$1" || NUM="1"
-    until [ "$I" -eq "$NUM" ]; do
+    [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
+    until [ "$I" -eq "$num" ]; do
         I=$((I+1))
+        # /dev/urandom is not POSIX
         LC_CTYPE=C strings /dev/urandom | \
             grep -o '[a-hjkmnp-z2-9-]' | head -n 24 | paste -s -d \\0 /dev/stdin
     done | column
 }
 gen_xkcd_pass() {
     I=0
-    [ $(printf "$1" | grep -E '[0-9]+') ] && NUM="$1" || NUM="1"
-    [ $(uname) = "SunOS" ] && FILE="/usr/dict/words" || FILE="/usr/share/dict/words"
-    DICT=$(LC_CTYPE=C grep -E '^[a-zA-Z]{3,6}$' "$FILE")
-    until [ "$I" -eq "$NUM" ]; do
+    [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
+    # better to list all possible UNIX dictionary locations and iterate?
+    [ $(uname) = "SunOS" ] && file="/usr/dict/words" || file="/usr/share/dict/words"
+    dict=$(LC_CTYPE=C grep -E '^[a-zA-Z]{3,6}$' "$file")
+    until [ "$I" -eq "$num" ]; do
         I=$((I+1))
-        printf "$DICT" | shuff 6 | paste -s -d '.' /dev/stdin
+        # /dev/stdin is not POSIX
+        printf "$dict" | shuff 6 | paste -s -d '.' /dev/stdin
     done | column
 }
 
