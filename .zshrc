@@ -124,7 +124,7 @@ shuff() {
     fi
 }
 gen_monkey_pass() {
-    I=0
+    i=0
     [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
     until [ "$i" -eq "$num" ]; do
         i=$((i+1))
