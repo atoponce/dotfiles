@@ -98,7 +98,7 @@ alias ls='ls --color=auto'
 # general purpose functions
 expandurl() {
     torsocks wget --spider -O - -S $1 2>&1 | \
-    awk '/^Location/ {gsub("\?utm_.*$",""); a=$2} END {print a}'
+    awk '/^Location/ {gsub("?utm_.*$",""); a=$2} END {print a}'
 }
 longurl() {
     curl -s "http://api.longurl.org/v2/expand?url=${1}&format=php" | \
