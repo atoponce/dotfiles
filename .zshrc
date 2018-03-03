@@ -97,12 +97,9 @@ alias ls='ls --color=auto'
 
 # general purpose functions
 expandurl() {
-    torsocks wget --spider -O - -S $1 2>&1 | \
+    if [ "$1" = "-c" ]; then net=""; shift; else net="torsocks"; fi
+    $net wget --spider -O - -S $1 2>&1 | \
     awk '/^Location/ {gsub("?utm_.*$",""); a=$2} END {print a}'
-}
-longurl() {
-    curl -s "http://api.longurl.org/v2/expand?url=${1}&format=php" | \
-    awk -F '"' '{gsub("?utm_.*",""); print $4}'
 }
 shorturl() {
     wget -qO - 'http://ae7.st/s/yourls-api.php?signature=8e4f5d1d8d&action=shorturl&format=simple&url='"$1"
