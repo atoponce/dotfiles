@@ -105,6 +105,7 @@ shorturl() {
     wget -qO - 'http://ae7.st/s/yourls-api.php?signature=8e4f5d1d8d&action=shorturl&format=simple&url='"$1"
     echo
 }
+
 shuff() {
     # Tries to use a CSPRNG for shuffling
     # /dev/urandom and /dev/stdin are not POSIX
