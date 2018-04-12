@@ -105,14 +105,16 @@ shorturl() {
     wget -qO - 'http://ae7.st/s/yourls-api.php?signature=8e4f5d1d8d&action=shorturl&format=simple&url='"$1"
     echo
 }
+
 shuff() {
+    # Tries to use a CSPRNG for shuffling
+    # /dev/urandom and /dev/stdin are not POSIX
     if [ "$(command -v shuf)" ]; then
-        shuf -n "$1"
+        shuf -n "$1" --random-source=/dev/urandom
     elif [ "$(command -v shuffle)" ]; then
-        # /dev/stdin is not POSIX
+        # NetBSD uses arc4random_uniform() in src/usr.bin/shuffle/shuffle.c
         shuffle -f /dev/stdin -p "$1"
     else
-        # /dev/urandom is not POSIX
         awk 'BEGIN{
             "od -tu4 -N4 -A n /dev/urandom" | getline
             srand(0+$0)
@@ -121,25 +123,33 @@ shuff() {
     fi
 }
 gen_monkey_pass() {
+    # Generates an unambiguous password with 130 bits entropy 
+    # Uses Crockford's base32
+    #   - https://en.wikipedia.org/wiki/Base32#Crockford's_Base32
+    # /dev/urandom is not POSIX
     i=0
     [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
     until [ "$i" -eq "$num" ]; do
         i=$((i+1))
-        # /dev/urandom is not POSIX
-        LC_CTYPE=C strings /dev/urandom | \
-            grep -o '[a-hjkmnp-z2-9-]' | head -n 24 | paste -s -d \\0 /dev/stdin
+        LC_CTYPE=C LC_COLLATE=C tr -cd '0-9a-hjkmnp-tv-z' < /dev/urandom |\
+            dd bs=1 count=26 2> /dev/null 
+        echo # add newline
     done | column
 }
 gen_xkcd_pass() {
+    # Generates a passphrase with at least 128 bits entropy
+    # /dev/stdin is not POSIX
     i=0
     [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
-    # better to list all possible UNIX dictionary locations and iterate?
+    # Solaris, Illumos, FreeBSD, OpenBSD, NetBSD, GNU/Linux, OS X:
     [ $(uname) = "SunOS" ] && file="/usr/dict/words" || file="/usr/share/dict/words"
-    dict=$(LC_CTYPE=C grep -E '^[a-zA-Z]{3,6}$' "$file")
+    dict=$(LC_CTYPE=C LC_COLLATE=C grep -E '^[a-zA-Z]{3,6}$' "$file")
+    size=$(printf "$dict" | wc -l | sed -e 's/ //g')
+    entropy=$(printf "l(${size})/l(2)\n" | bc -l)
+    words=$(printf "(128+${entropy}-1)/${entropy}\n" | bc)
     until [ "$i" -eq "$num" ]; do
         i=$((i+1))
-        # /dev/stdin is not POSIX
-        printf "$dict" | shuff 6 | paste -s -d '.' /dev/stdin
+        printf "$dict" | shuff "$words" | paste -s -d '.' /dev/stdin
     done | column
 }
 
