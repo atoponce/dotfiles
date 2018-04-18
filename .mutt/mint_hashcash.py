@@ -50,7 +50,7 @@ if headers.has_key("hashcash"):
 # Call the hashcash function from the operating system to mint tokens
 if email_addrs:
     for email in email_addrs:
-        t = subprocess.Popen("hashcash -m %s -b 24 -X -Z 2" % email, shell=True, stdout=subprocess.PIPE)
+        t = subprocess.Popen("hashcash -m %s -b 26 -X -Z 2" % email, shell=True, stdout=subprocess.PIPE)
         tokens.append(t.stdout.read())
 
 # Write the newly minted tokens to the header
