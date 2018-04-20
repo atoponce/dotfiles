@@ -1,18 +1,9 @@
 colorscheme hybrid                  " set the theme
 
-" must install vim-airline
-"   $ git clone https://github.com/bling/vim-airline
-" manually copy or symbolic link everything into ~/.vim/
-let g:airline#extensions#tabline#enabled = 1
-
-" set the bubblegum.vim airline theme
-let g:airline_theme='bubblegum'
-
-if !exists('g:airline_symbols')
-  let g:airline_symbols = {}
-endif
-let g:airline_symbols.space = "\ua0"
-
+" Every password manager should ship high quality a password generator
+command MonkeyPass r!zsh -ic gen_monkey_pass
+command XKCDPass r!zsh -ic gen_xkcd_pass
+command -nargs=* NodePass r!nodepassgen <args>
 
 nnoremap <Space> za
 vnoremap <Space> za
