@@ -7,7 +7,7 @@ import sys
 
 # Change the DB path in COMMAND as needed, and change your email address(es)
 COMMAND="hashcash -cdb '%s' -r '%s' -f ~/.mutt/hashcash.db '%s'"
-EMAILADDR=("aaron.toponce@gmail.com", "atoponce@ubuntu.com")
+EMAILADDR=("aaron.toponce@gmail.com")
 
 tokens = []
 token_status = []
