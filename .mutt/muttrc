@@ -24,10 +24,6 @@ macro index Au "<change-folder>imaps://imap.umail.utah.edu<enter>"
 macro index M "T.\n;WN;^T.\n" "Mark all messages as read"
 
 my_hdr OpenPGP: id=22EEE0488086060F\; url=http://ae7.st/s/pgp\; preference=signencrypt
-my_hdr Crypto-Challenge: iVBORw0KGgoAAAANSUhEUgAAAD4AAAA+AQMAAABJDzoHAAAABlBMVEX///8AAABVwtN+AAAAVElE
-	QVQoz53LsQ2AIBgF4ZdQUDICm8hiJpq4mG7yj0BJQTwbB3jhqq85aakUYytXmCC/SpgINU65yHeZ
-	1QQ8fZeJkP7dAUC4GK2r2pCOMAEAHpb6ADO8tfBCelrdAAAAAElFTkSuQmCC
-my_hdr Crypto-Hint: image/png
 
 send-hook '~t ^aaron\.toponce@ymail\.com$' 'set pgp_autoinline'
 
