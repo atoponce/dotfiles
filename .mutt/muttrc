@@ -25,6 +25,7 @@ macro index M "T.\n;WN;^T.\n" "Mark all messages as read"
 
 my_hdr OpenPGP: id=22EEE0488086060F\; url=http://ae7.st/s/pgp\; preference=signencrypt
 
+send-hook . 'my_hdr PaaS: `/bin/bash ~/src/scripts/random-password.sh`'
 send-hook '~t ^aaron\.toponce@ymail\.com$' 'set pgp_autoinline'
 
 set askbcc="yes"
@@ -73,6 +74,7 @@ unignore x-mailer x-newsreader x-mailing-list
 unignore x-hashcash hashcash
 #unignore message-id in-reply-to references
 unignore openpgp
+unignore paas
 
 source ~/.mutt/gmail/gmail.rc
 source ~/.mutt/gnupg
