@@ -15,7 +15,7 @@ if [ "$TERM" = "putty" ]; then
     export LC_ALL=C
 fi
 
-TERM="xterm-256color"
+#TERM="xterm-256color"
 
 # modifying the PATH adding the sbin directories
 path+=( /sbin /usr/sbin /usr/local/sbin )
@@ -96,11 +96,21 @@ unset k
 alias ls='ls --color=auto'
 
 # general purpose functions
-expandurl() {
-    if [ "$1" = "-c" ]; then net=""; shift; else net="torsocks"; fi
-    $net wget --spider -O - -S $1 2>&1 | \
-    awk '/^Location/ {gsub("?utm_.*$",""); a=$2} END {print a}'
+alphaimg() {
+    convert $1 -alpha on -channel A -evaluate set 99% +channel $1
+    optipng -q $1
 }
+
+# Improvement from https://gist.github.com/jlp78/f103beb941842ee1c59fa8b24640684a
+expandurl () {
+    (torsocks wget --spider -O - -S $1 2>&1 |
+	awk '/^Location/ {gsub("\\?utm_.*$",""); print $2; exit 0} 
+	     /socks5 libc connect: Connection refused/ {exit 1}') ||
+    (echo "warning, TOR not enabled"
+	wget --spider -O - -S $1 2>&1 |
+	awk '/^Location/ {gsub("\\?utm_.*$",""); print $2; exit 0}')
+}
+
 shorturl() {
     wget -qO - 'http://ae7.st/s/yourls-api.php?signature=8e4f5d1d8d&action=shorturl&format=simple&url='"$1"
     echo
