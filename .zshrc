@@ -9,13 +9,10 @@ SAVEHIST="10000"
 EDITOR="vim"
 VISUAL="vim"
 PAGER="less"
-NNTPSERVER="snews.eternal-september.org"
 
-if [ "$TERM" = "putty" ]; then
+if [[ "$TERM" = "putty" ]]; then
     export LC_ALL=C
 fi
-
-#TERM="xterm-256color"
 
 # modifying the PATH adding the sbin directories
 path+=( /sbin /usr/sbin /usr/local/sbin )
@@ -24,18 +21,24 @@ path=( ${(u)path} )
 # various options to set/unset
 setopt appendhistory
 setopt share_history
+setopt prompt_subst
+
 unsetopt autocd beep
+
+autoload -U colors
 autoload -U promptinit
 autoload -Uz compinit
 autoload is-at-least
 
 # modules to load
+colors
 promptinit
 compinit
 
 zstyle :compinstall filename '~/.zshrc'
 
-# keybindings. vim by default. others added for comfort
+### Keybindings
+# vim by default. others added for comfort
 bindkey -v
 bindkey -M viins '\e.' insert-last-word
 bindkey -M vicmd '\e.' insert-last-word
@@ -72,7 +75,7 @@ unset k
 [[ -n "${key[Left]}"   ]] && bindkey "${key[Left]}" backward-char
 [[ -n "${key[Right]}"  ]] && bindkey "${key[Right]}" forward-char
 
-# setup SSH agent and keys
+### SSH agent
 #start_ssh_agent() {
 #    echo "ssh-agent is not running. Starting..."
 #    eval $(ssh-agent | tee /run/systemd/users/$UID/ssh/agent.sh)
@@ -92,17 +95,17 @@ unset k
 #    start_ssh_agent
 #fi
 
-# general purpose aliases
+### General purpose aliases
 alias ls='ls --color=auto'
 
-# general purpose functions
+### General purpose functions
 alphaimg() {
     convert $1 -alpha on -channel A -evaluate set 99% +channel $1
     optipng -q $1
 }
 
-# Improvement from https://gist.github.com/jlp78/f103beb941842ee1c59fa8b24640684a
-expandurl () {
+expandurl() {
+    # Improvement from https://gist.github.com/jlp78/f103beb941842ee1c59fa8b24640684a
     (torsocks wget --spider -O - -S $1 2>&1 |
 	awk '/^Location/ {gsub("\\?utm_.*$",""); print $2; exit 0} 
 	     /socks5 libc connect: Connection refused/ {exit 1}') ||
@@ -116,6 +119,7 @@ shorturl() {
     echo
 }
 
+### Password generators
 shuff() {
     # Tries to use a CSPRNG for shuffling
     # /dev/urandom and /dev/stdin are not POSIX
@@ -162,40 +166,94 @@ gen_xkcd_pass() {
     done | column
 }
 
-# archives and compression
-extract() {
-    if [[ -f $1 ]]; then
-        case $1 in
-            *.tar.bz2)  tar -xjf $1 ;;
-            *.tar.gz)   tar -xzf $1 ;;
-            *.tar.lzma) tar --lzma -xf $1 ;;
-            *.bz2)      bunzip2 $1 ;;
-            *.gz)       gunzip $1 ;;
-            *.lzma)     unlzma $1 ;;
-            *.rar)      unrar -e $1 ;;
-            *.tar)      tar -xf $1 ;;
-            *.tbz2)     tar -xjf $1 ;;
-            *.tgz)      tar -xzf $1 ;;
-            *.zip)      unzip -d ${$1%???} $1 ;;
-            *.Z)        gunzip $1 ;;
-            *.7z)       7z x $1 ;;
-            *)          echo "Unsupported compressed file type." ;;
-        esac
-    else
-        echo "'$1' is not a valid file"
+### Prompt
+loc=5
+walk=(0 0 0 0 1 0 0 0 0)
+typeset -A compass=(1 "NW" 2 "NE" 3 "SW" 4 "SE") # not necessary, here for readability
+typeset -A coins=( # heat map and coin weight
+    0 " "
+    1 '%F{093}.%f' # close to 0x8000ff
+    2 '%F{019}:%f' # close to 0x2000ff
+    3 '%F{033}-%f' # close to 0x009fff
+    4 '%F{051}=%f' # close to 0x00ffff
+    5 '%F{047}+%f' # close to 0x00ff40
+    6 '%F{190}*%f' # close to 0xdfff00
+    7 '%F{220}#%f' # close to 0xffbf00
+    8 '%F{208}&%f' # close to 0xff8700
+    9 '%F{196}@%f' # close to 0xff0000
+)
+
+precmd() {
+    local num=$(tr -cd 1234 < /dev/urandom | head -c 1)
+    if [[ $loc -eq 1 ]]; then
+          if [[ $compass[$num] == "NW" ]]; then loc=1; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "NE" ]]; then loc=2; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SW" ]]; then loc=4; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SE" ]]; then loc=5; (( walk[$loc]+=1 ))
+        fi
+    elif [[ $loc -eq 2 ]]; then
+          if [[ $compass[$num] == "NW" ]]; then loc=1; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "NE" ]]; then loc=3; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SW" ]]; then loc=4; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SE" ]]; then loc=6; (( walk[$loc]+=1 ))
+        fi
+    elif [[ $loc -eq 3 ]]; then
+          if [[ $compass[$num] == "NW" ]]; then loc=2; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "NE" ]]; then loc=3; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SW" ]]; then loc=5; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SE" ]]; then loc=6; (( walk[$loc]+=1 ))
+        fi
+    elif [[ $loc -eq 4 ]]; then
+          if [[ $compass[$num] == "NW" ]]; then loc=1; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "NE" ]]; then loc=2; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SW" ]]; then loc=7; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SE" ]]; then loc=8; (( walk[$loc]+=1 ))
+        fi
+    elif [[ $loc -eq 5 ]]; then
+          if [[ $compass[$num] == "NW" ]]; then loc=1; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "NE" ]]; then loc=3; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SW" ]]; then loc=7; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SE" ]]; then loc=9; (( walk[$loc]+=1 ))
+        fi
+    elif [[ $loc -eq 6 ]]; then
+          if [[ $compass[$num] == "NW" ]]; then loc=2; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "NE" ]]; then loc=3; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SW" ]]; then loc=8; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SE" ]]; then loc=9; (( walk[$loc]+=1 ))
+        fi
+    elif [[ $loc -eq 7 ]]; then
+          if [[ $compass[$num] == "NW" ]]; then loc=4; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "NE" ]]; then loc=5; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SW" ]]; then loc=7; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SE" ]]; then loc=8; (( walk[$loc]+=1 ))
+        fi
+    elif [[ $loc -eq 8 ]]; then
+          if [[ $compass[$num] == "NW" ]]; then loc=4; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "NE" ]]; then loc=6; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SW" ]]; then loc=7; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SE" ]]; then loc=9; (( walk[$loc]+=1 ))
+        fi
+    elif [[ $loc -eq 9 ]]; then
+          if [[ $compass[$num] == "NW" ]]; then loc=5; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "NE" ]]; then loc=6; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SW" ]]; then loc=8; (( walk[$loc]+=1 ))
+        elif [[ $compass[$num] == "SE" ]]; then loc=9; (( walk[$loc]+=1 ))
+        fi
     fi
+    
+    # there are only 9 coin weights: .:-=+*#%@
+    for cell in {1..9}; do
+        if [[ $walk[$cell] -gt 9 ]]; then
+            (( walk[$cell]=9 ))
+        fi
+    done
+
+    # reset when the drunk bishop has visited every cell 9 times
+    if [[ $walk[@] == "9 9 9 9 9 9 9 9 9" ]]; then
+        walk=(0 0 0 0 1 0 0 0 0)
+    fi
+
+    PROMPT="$coins[$walk[1]]$coins[$walk[2]]$coins[$walk[3]] %B%n@%M:%~%b
+$coins[$walk[4]]$coins[$walk[5]]$coins[$walk[6]] %B%D%b
+$coins[$walk[7]]$coins[$walk[8]]$coins[$walk[9]] %B%(?..%F{red}%? %f)%#%b "
 }
-
-mktar() { tar -cf "${1%%/}.tar" "${1%%/}/"; }
-mktgz() { tar -czf "${1%%/}.tar.gz" "${1%%/}/"; }
-mktbz() { tar -cjf "${1%%/}.tar.bz2" "${1%%/}/"; }
-mktlz() { tar --lzma -cf "${1%%/}.tar.lzma" "${1%%/}/"; }
-
-# We can't forget the prompt!
-source ~/.zsh_prompt
-
-PATH="/home/atoponce/perl5/bin${PATH+:}${PATH}"; export PATH;
-PERL5LIB="/home/atoponce/perl5/lib/perl5${PERL5LIB+:}${PERL5LIB}"; export PERL5LIB;
-PERL_LOCAL_LIB_ROOT="/home/atoponce/perl5${PERL_LOCAL_LIB_ROOT+:}${PERL_LOCAL_LIB_ROOT}"; export PERL_LOCAL_LIB_ROOT;
-PERL_MB_OPT="--install_base \"/home/atoponce/perl5\""; export PERL_MB_OPT;
-PERL_MM_OPT="INSTALL_BASE=/home/atoponce/perl5"; export PERL_MM_OPT;
