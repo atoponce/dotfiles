@@ -2,5 +2,6 @@
 .mutt/hashcash.db
 .accounts.kdb.lock
 .vim/.netrwhist
+.vim/spell
 .emacs.d/*~
 .emacs.d/auto-save-list/*
