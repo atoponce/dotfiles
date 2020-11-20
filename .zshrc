@@ -172,18 +172,27 @@ walk=(0 0 0 0 1 0 0 0 0)
 typeset -A compass=(1 "NW" 2 "NE" 3 "SW" 4 "SE") # not necessary, here for readability
 typeset -A coins=( # heat map and coin weight
     0 " "
-    1 '%F{093}.%f' # close to 0x8000ff
-    2 '%F{019}:%f' # close to 0x2000ff
-    3 '%F{033}-%f' # close to 0x009fff
-    4 '%F{051}=%f' # close to 0x00ffff
-    5 '%F{047}+%f' # close to 0x00ff40
-    6 '%F{190}*%f' # close to 0xdfff00
-    7 '%F{220}#%f' # close to 0xffbf00
-    8 '%F{208}&%f' # close to 0xff8700
-    9 '%F{196}@%f' # close to 0xff0000
+    1 '%B%F{093}.%f%b'
+    2 '%B%F{021}:%f%b'
+    3 '%B%F{033}-%f%b'
+    4 '%B%F{051}=%f%b'
+    5 '%B%F{047}+%f%b'
+    6 '%B%F{190}*%f%b'
+    7 '%B%F{220}#%f%b'
+    8 '%B%F{208}&%f%b'
+    9 '%B%F{196}@%f%b'
 )
 
 precmd() {
+    if [[ -w $PWD ]]; then cdir=$(print -P '%~')
+    else cdir=$(print -P '%B%F{red}%~%f%b')
+    fi
+
+    PROMPT="\
+$coins[$walk[1]]$coins[$walk[2]]$coins[$walk[3]] %B%n@%M:$cdir%b
+$coins[$walk[4]]$coins[$walk[5]]$coins[$walk[6]] %B%D %T%b
+$coins[$walk[7]]$coins[$walk[8]]$coins[$walk[9]] %B%(?..%F{red}%?%f)%(!.%F{red}#%f.%F{green}%%%f)%b "
+
     local num=$(tr -cd 1234 < /dev/urandom | head -c 1)
     if [[ $loc -eq 1 ]]; then
           if [[ $compass[$num] == "NW" ]]; then loc=1; (( walk[$loc]+=1 ))
@@ -252,8 +261,4 @@ precmd() {
     if [[ $walk[@] == "9 9 9 9 9 9 9 9 9" ]]; then
         walk=(0 0 0 0 1 0 0 0 0)
     fi
-
-    PROMPT="$coins[$walk[1]]$coins[$walk[2]]$coins[$walk[3]] %B%n@%M:%~%b
-$coins[$walk[4]]$coins[$walk[5]]$coins[$walk[6]] %B%D%b
-$coins[$walk[7]]$coins[$walk[8]]$coins[$walk[9]] %B%(?..%F{red}%? %f)%#%b "
 }
