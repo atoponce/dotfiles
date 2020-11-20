@@ -190,10 +190,10 @@ precmd() {
     else cdir=$(print -P '%B%F{red}%~%f%b')
     fi
 
-    local bishop='🥴'
-    local row1="$coins[$walk[1]]$coins[$walk[2]]$coins[$walk[3]]"
-    local row2="$coins[$walk[4]]$coins[$walk[5]]$coins[$walk[6]]"
-    local row3="$coins[$walk[7]]$coins[$walk[8]]$coins[$walk[9]]"
+    bishop='🥴'
+    row1="$coins[$walk[1]]$coins[$walk[2]]$coins[$walk[3]]"
+    row2="$coins[$walk[4]]$coins[$walk[5]]$coins[$walk[6]]"
+    row3="$coins[$walk[7]]$coins[$walk[8]]$coins[$walk[9]]"
 
       if [[ $loc -eq 1 ]]; then row1="$bishop$coins[$walk[2]]$coins[$walk[3]]"
     elif [[ $loc -eq 2 ]]; then row1="$coins[$walk[1]]$bishop$coins[$walk[3]]"
@@ -205,11 +205,6 @@ precmd() {
     elif [[ $loc -eq 8 ]]; then row3="$coins[$walk[7]]$bishop$coins[$walk[9]]"
     elif [[ $loc -eq 9 ]]; then row3="$coins[$walk[7]]$coins[$walk[8]]$bishop"
     fi
-    
-    PROMPT="\
-$row1 %B%n@%M:$cdir%b
-$row2 %B%D %T%b
-$row3 %B%(?..%F{red}%?%f)%(!.%F{red}#%f.%F{green}%%%f)%b "
 
     # +---+---+---+
     # | 1 | 2 | 3 |  1       2
@@ -286,6 +281,12 @@ $row3 %B%(?..%F{red}%?%f)%(!.%F{red}#%f.%F{green}%%%f)%b "
 
     # reset when the drunk bishop has visited every cell 9 times
     if [[ $walk[@] == "9 9 9 9 9 9 9 9 9" ]]; then
+        loc=5
         walk=(0 0 0 0 1 0 0 0 0)
     fi
 }
+
+newline=$'\n'
+PROMPT='$row1 %B%n@%M:$cdir%b$newline'
+PROMPT+='$row2 %B%D %T%b%(?.. %F{red}(%?%)%f)$newline'
+PROMPT+='$row3 %B%(!.%F{red}#%f.%F{green}%%%f)%b '
