@@ -287,7 +287,7 @@ precmd() {
     fi
 }
 
-newline=$'\n'
-PROMPT='$row1 %B%n@%M:$cdir%b$newline'
-PROMPT+='$row2 %B%D %T%(?.. %F{red}(%?%)%f)%b$newline'
-PROMPT+='$row3 %B%(!.%F{red}#%f.%F{green}%%%f)%b '
+PROMPT='\
+$row1%B%n@%M:$cdir%b
+$row2%B%D %T%(?.. %F{red}(%?%)%f)%b
+$row3%B%(!.%F{red}#%f.%F{green}%%%f)%b '
