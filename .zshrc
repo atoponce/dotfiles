@@ -188,12 +188,37 @@ precmd() {
     else cdir=$(print -P '%B%F{red}%~%f%b')
     fi
 
+    local bishop='🥴'
+    local row1="$coins[$walk[1]]$coins[$walk[2]]$coins[$walk[3]]"
+    local row2="$coins[$walk[4]]$coins[$walk[5]]$coins[$walk[6]]"
+    local row3="$coins[$walk[7]]$coins[$walk[8]]$coins[$walk[9]]"
+
+      if [[ $loc -eq 1 ]]; then row1="$bishop$coins[$walk[2]]$coins[$walk[3]]"
+    elif [[ $loc -eq 2 ]]; then row1="$coins[$walk[1]]$bishop$coins[$walk[3]]"
+    elif [[ $loc -eq 3 ]]; then row1="$coins[$walk[1]]$coins[$walk[2]]$bishop"
+    elif [[ $loc -eq 4 ]]; then row2="$bishop$coins[$walk[5]]$coins[$walk[6]]"
+    elif [[ $loc -eq 5 ]]; then row2="$coins[$walk[4]]$bishop$coins[$walk[6]]"
+    elif [[ $loc -eq 6 ]]; then row2="$coins[$walk[4]]$coins[$walk[5]]$bishop"
+    elif [[ $loc -eq 7 ]]; then row3="$bishop$coins[$walk[8]]$coins[$walk[9]]"
+    elif [[ $loc -eq 8 ]]; then row3="$coins[$walk[7]]$bishop$coins[$walk[9]]"
+    elif [[ $loc -eq 9 ]]; then row3="$coins[$walk[7]]$coins[$walk[8]]$bishop"
+    fi
+    
     PROMPT="\
-$coins[$walk[1]]$coins[$walk[2]]$coins[$walk[3]] %B%n@%M:$cdir%b
-$coins[$walk[4]]$coins[$walk[5]]$coins[$walk[6]] %B%D %T%b
-$coins[$walk[7]]$coins[$walk[8]]$coins[$walk[9]] %B%(?..%F{red}%?%f)%(!.%F{red}#%f.%F{green}%%%f)%b "
+$row1 %B%n@%M:$cdir%b
+$row2 %B%D %T%b
+$row3 %B%(?..%F{red}%?%f)%(!.%F{red}#%f.%F{green}%%%f)%b "
+
+    # +---+---+---+
+    # | 1 | 2 | 3 |  1       2
+    # +---+---+---+    \   /
+    # | 4 | 5 | 6 |      X
+    # +---+---+---+    /   \
+    # | 7 | 8 | 9 |  3       4
+    # +---+---+---+
 
     local num=$(tr -cd 1234 < /dev/urandom | head -c 1)
+
     if [[ $loc -eq 1 ]]; then
           if [[ $compass[$num] == "NW" ]]; then loc=1; (( walk[$loc]+=1 ))
         elif [[ $compass[$num] == "NE" ]]; then loc=2; (( walk[$loc]+=1 ))
