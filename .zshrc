@@ -170,17 +170,19 @@ gen_xkcd_pass() {
 loc=5
 walk=(0 0 0 0 1 0 0 0 0)
 typeset -A compass=(1 "NW" 2 "NE" 3 "SW" 4 "SE") # not necessary, here for readability
-typeset -A coins=( # heat map and coin weight
-    0 " "
-    1 '%B%F{093}.%f%b'
-    2 '%B%F{021}:%f%b'
-    3 '%B%F{033}-%f%b'
-    4 '%B%F{051}=%f%b'
-    5 '%B%F{047}+%f%b'
-    6 '%B%F{190}*%f%b'
-    7 '%B%F{220}#%f%b'
-    8 '%B%F{208}&%f%b'
-    9 '%B%F{196}@%f%b'
+typeset -A coins=(
+    # heat map and coin weight
+    # not ASCII, but full-width unicode
+    0 "　"
+    1 '%B%F{093}．%f%b'
+    2 '%B%F{021}：%f%b'
+    3 '%B%F{033}－%f%b'
+    4 '%B%F{051}＝%f%b'
+    5 '%B%F{047}＋%f%b'
+    6 '%B%F{190}＊%f%b'
+    7 '%B%F{220}＃%f%b'
+    8 '%B%F{208}％%f%b'
+    9 '%B%F{196}＠%f%b'
 )
 
 precmd() {
