@@ -25,15 +25,11 @@ setopt prompt_subst
 
 unsetopt autocd beep
 
-autoload -U colors
-autoload -U promptinit
-autoload -Uz compinit
+autoload -U colors && colors
+autoload -Uz compinit && compinit
+autoload -U promptinit && promptinit
+autoload -U regexp-replace
 autoload is-at-least
-
-# modules to load
-colors
-promptinit
-compinit
 
 zstyle :compinstall filename '~/.zshrc'
 
@@ -119,87 +115,54 @@ shorturl() {
 }
 
 ### Password generators
-shuff() {
-    # Tries to use a CSPRNG for shuffling
-    # /dev/urandom and /dev/stdin are not POSIX
-    if [ "$(command -v shuf)" ]; then
-        shuf -n "$1" --random-source=/dev/urandom
-    elif [ "$(command -v shuffle)" ]; then
-        # NetBSD uses arc4random_uniform() in src/usr.bin/shuffle/shuffle.c
-        shuffle -f /dev/stdin -p "$1"
-    else
-        awk 'BEGIN{
-            "od -tu4 -N4 -A n /dev/urandom" | getline
-            srand(0+$0)
-        }
-        {print rand()"\t"$0}' | sort -n | cut -f 2 | head -n "$1"
-    fi
-}
 gen_monkey_pass() {
     # Generates an unambiguous password with at least 128 bits entropy 
     # Uses Crockford's base32
-    # /dev/urandom is not POSIX
-    i=0
-    [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
-    until [ "$i" -eq "$num" ]; do
-        i=$((i+1))
-        LC_ALL=C tr -cd '0-9a-hjkmnp-tv-z' < /dev/urandom | dd bs=1 count=26 2> /dev/null 
-        printf "\n" # add newline
+    [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
+    pass=$(tr -cd '0-9a-hjkmnp-tv-z' < /dev/urandom | head -c $((26*$num)))
+    for i in {1.."$num"}; do
+        printf "${pass:$((26*($i-1))):26}\n" # add newline
     done | column
 }
 gen_xkcd_pass() {
     # Generates a passphrase with at least 128 bits entropy
-    # /dev/stdin is not POSIX
-    i=0
-    [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
-    # Solaris, Illumos, FreeBSD, OpenBSD, NetBSD, GNU/Linux, OS X:
-    [ $(uname) = "SunOS" ] && file="/usr/dict/words" || file="/usr/share/dict/words"
-    dict=$(LC_ALL=C grep -E '^[a-zA-Z]{3,6}$' "$file")
+    [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
+    file="/usr/share/dict/words"
+    dict=$(grep -E '^[a-zA-Z]{3,6}$' "$file")
     size=$(printf "$dict" | wc -l | sed -e 's/ //g')
     entropy=$(printf "l(${size})/l(2)\n" | bc -l)
     words=$(printf "(128+${entropy}-1)/${entropy}\n" | bc)
-    until [ "$i" -eq "$num" ]; do
-        i=$((i+1))
-        printf "$dict" | shuff "$words" | paste -s -d '-' /dev/stdin
+    for i in {1.."$num"}; do
+        printf "$dict" | shuf --random-source=/dev/urandom -n "$words" | paste -sd '-'
     done | column
 }
 gen_apple_pass() {
     # Generates a pseudoword with at least 128 bits entropy
-    # /dev/urandom is not POSIX
-    # Relies on GNU sed(1) for "\u" uppercase
-    i=0
-    [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
-    _apple() {
-        j=12
-        i=$((i+1))
+    [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
+    c="$(tr -cd bcdfghjkmnpqrstvwxz < /dev/urandom | head -c $((24*$num)))"
+    v="$(tr -cd aeiouy < /dev/urandom | head -c $((12*$num)))"
+    for i in {1.."$num"}; do
         unset pseudo
-        consonants="$(LC_ALL=C tr -cd bcdfghjkmnpqrstvwxz < /dev/urandom | dd bs=1 count=24 2> /dev/null)"
-        vowels="$(LC_ALL=C tr -cd aeiouy < /dev/urandom | dd bs=1 count=12 2> /dev/null)"
-        k=1
-        until [ "$k" -eq "13" ]; do
-            tmp1="$(printf $consonants | grep -o . | sed -n $((2*$k-1))p)"
-            tmp2="$(printf $vowels | grep -o . | sed -n ${k}p)"
-            tmp3="$(printf $consonants | grep -o . | sed -n $((2*$k))p)"
-            pseudo="${pseudo}${tmp1}${tmp2}${tmp3}"
-            k=$((k+1))
+        typeset -A base36=(0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15
+                           g 16 h 17 i 18 j 19 k 20 l 21 m 22 n 23 o 24 p 25 q 26 r 27 s 28 t 29
+                           u 30 v 31 w 32 x 33 y 34 z 35)
+        for j in {0..11}; do
+            # the math here is messy, but it's in the name of performance
+            pseudo="${pseudo}${c:$((2*$j+(24*($i-1)))):1}${v:$(($j+(12*($i-1)))):1}${c:$((2*$j+(24*($i-1)))):1}"
         done
-        word_pos=$(LC_ALL=C tr -cd 012345 < /dev/urandom | dd bs=1 count=1 2> /dev/null)
-        end_cap=$(LC_ALL=C tr -cd 05 < /dev/urandom | dd bs=1 count=1 2> /dev/null)
-        digit=$(LC_ALL=C tr -cd 0123456789 < /dev/urandom | dd bs=1 count=1 2> /dev/null)
-        digit_pos=$((30-${word_pos}*6+${end_cap}))
+        word_pos=$(printf '0\n1\n2\n3\n4\n5\n' | shuf --random-source=/dev/urandom -n 1)
+        end_cap=$(printf '0\n5\n' | shuf --random-source=/dev/urandom -n 1)
+        digit=$(printf '0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n' | shuf --random-source=/dev/urandom -n 1)
+        digit_pos=$((30-6*${word_pos}+${end_cap}))
         char_pos=$digit_pos
-        until [ "$digit_pos" -ne "$char_pos" ]; do
-            a=$(LC_ALL=C tr -cd 0123 < /dev/urandom | dd bs=1 count=1 2> /dev/null)
-            b=$(LC_ALL=C tr -cd 012345 < /dev/urandom | dd bs=1 count=1 2> /dev/null)
-            char_pos=$((${a}${b}-0))
+        while [[ "$digit_pos" -eq "$char_pos" ]]; do
+            char_pos=$base36[$(tr -cd 0-9a-z < /dev/urandom | head -c 1)]
         done
-        pseudo=$(printf "$pseudo" | sed -r "s/^(.{$digit_pos}).(.*)$/\1${digit}\2/")
-        pseudo=$(printf "$pseudo" | sed -r "s/^(.{$char_pos})(.)(.*)$/\1\u\2\3/")
-        pseudo=$(printf "$pseudo" | sed -r 's/^(.{6})(.{6})(.{6})(.{6})(.{6})(.{6})$/\1-\2-\3-\4-\5-\6/')
+        regexp-replace pseudo "^(.{$digit_pos}).(.*)$" '${match[1]}${digit}${match[2]}'
+        regexp-replace pseudo "^(.{$char_pos})(.)(.*)$" '${match[1]}${(U)match[2]}${match[3]}'
+        regexp-replace pseudo '^(.{6})(.{6})(.{6})(.{6})(.{6})(.{6})$' \
+                              '${match[1]}-${match[2]}-${match[3]}-${match[4]}-${match[5]}-${match[6]}'
         printf "${pseudo}\n"
-    }
-    until [ "$i" -eq "$num" ]; do
-        _apple
     done | column
 }
 
