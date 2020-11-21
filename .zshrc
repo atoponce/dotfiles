@@ -109,8 +109,7 @@ expandurl() {
     (torsocks wget --spider -O - -S $1 2>&1 |
 	awk '/^Location/ {gsub("\\?utm_.*$",""); print $2; exit 0} 
 	     /socks5 libc connect: Connection refused/ {exit 1}') ||
-    (echo "warning, TOR not enabled"
-	wget --spider -O - -S $1 2>&1 |
+    (echo "warning, TOR not enabled" wget --spider -O - -S $1 2>&1 |
 	awk '/^Location/ {gsub("\\?utm_.*$",""); print $2; exit 0}')
 }
 
@@ -144,9 +143,8 @@ gen_monkey_pass() {
     [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
     until [ "$i" -eq "$num" ]; do
         i=$((i+1))
-        LC_ALL=C tr -cd '0-9a-hjkmnp-tv-z' < /dev/urandom |\
-            dd bs=1 count=26 2> /dev/null 
-        echo # add newline
+        LC_ALL=C tr -cd '0-9a-hjkmnp-tv-z' < /dev/urandom | dd bs=1 count=26 2> /dev/null 
+        printf "\n" # add newline
     done | column
 }
 gen_xkcd_pass() {
@@ -162,7 +160,46 @@ gen_xkcd_pass() {
     words=$(printf "(128+${entropy}-1)/${entropy}\n" | bc)
     until [ "$i" -eq "$num" ]; do
         i=$((i+1))
-        printf "$dict" | shuff "$words" | paste -s -d '.' /dev/stdin
+        printf "$dict" | shuff "$words" | paste -s -d '-' /dev/stdin
+    done | column
+}
+gen_apple_pass() {
+    # Generates a pseudoword with at least 128 bits entropy
+    # /dev/urandom is not POSIX
+    # Relies on GNU sed(1) for "\u" uppercase
+    i=0
+    [ $(printf "$1" | grep -E '[0-9]+') ] && num="$1" || num="1"
+    _apple() {
+        j=12
+        i=$((i+1))
+        unset pseudo
+        consonants="$(LC_ALL=C tr -cd bcdfghjkmnpqrstvwxz < /dev/urandom | dd bs=1 count=24 2> /dev/null)"
+        vowels="$(LC_ALL=C tr -cd aeiouy < /dev/urandom | dd bs=1 count=12 2> /dev/null)"
+        k=1
+        until [ "$k" -eq "13" ]; do
+            tmp1="$(printf $consonants | grep -o . | sed -n $((2*$k-1))p)"
+            tmp2="$(printf $vowels | grep -o . | sed -n ${k}p)"
+            tmp3="$(printf $consonants | grep -o . | sed -n $((2*$k))p)"
+            pseudo="${pseudo}${tmp1}${tmp2}${tmp3}"
+            k=$((k+1))
+        done
+        word_pos=$(LC_ALL=C tr -cd 012345 < /dev/urandom | dd bs=1 count=1 2> /dev/null)
+        end_cap=$(LC_ALL=C tr -cd 05 < /dev/urandom | dd bs=1 count=1 2> /dev/null)
+        digit=$(LC_ALL=C tr -cd 0123456789 < /dev/urandom | dd bs=1 count=1 2> /dev/null)
+        digit_pos=$((30-${word_pos}*6+${end_cap}))
+        char_pos=$digit_pos
+        until [ "$digit_pos" -ne "$char_pos" ]; do
+            a=$(LC_ALL=C tr -cd 0123 < /dev/urandom | dd bs=1 count=1 2> /dev/null)
+            b=$(LC_ALL=C tr -cd 012345 < /dev/urandom | dd bs=1 count=1 2> /dev/null)
+            char_pos=$((${a}${b}-0))
+        done
+        pseudo=$(printf "$pseudo" | sed -r "s/^(.{$digit_pos}).(.*)$/\1${digit}\2/")
+        pseudo=$(printf "$pseudo" | sed -r "s/^(.{$char_pos})(.)(.*)$/\1\u\2\3/")
+        pseudo=$(printf "$pseudo" | sed -r 's/^(.{6})(.{6})(.{6})(.{6})(.{6})(.{6})$/\1-\2-\3-\4-\5-\6/')
+        printf "${pseudo}\n"
+    }
+    until [ "$i" -eq "$num" ]; do
+        _apple
     done | column
 }
 
