@@ -289,5 +289,5 @@ precmd() {
 
 PROMPT='\
 $row1%B%n@%M:$cdir%b
-$row2%B%D %T%(?.. %F{red}(%?%)%f)%b
+$row2%B%D{%Y-%m-%d} %D{%H:%M:%S.%.}%(?.. %F{red}(%?%)%f)%b
 $row3%B%(!.%F{red}#%f.%F{green}%%%f)%b '
