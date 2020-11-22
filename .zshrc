@@ -133,6 +133,7 @@ gen-xkcd-pass() {
     local entropy=$(printf "l(${size})/l(2)\n" | bc -l)
     local words=$(printf "(128+${entropy}-1)/${entropy}\n" | bc)
     for i in {1.."$num"}; do
+        printf "$words-"
         printf "$dict" | shuf --random-source=/dev/urandom -n "$words" | paste -sd '-'
     done
 }
