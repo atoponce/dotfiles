@@ -122,7 +122,7 @@ gen-monkey-pass() {
     local pass=$(tr -cd '0-9a-hjkmnp-tv-z' < /dev/urandom | head -c $((26*$num)))
     for i in {1.."$num"}; do
         printf "${pass:$((26*($i-1))):26}\n" # add newline
-    done | column
+    done
 }
 gen-xkcd-pass() {
     # Generates a passphrase with at least 128 bits entropy
@@ -134,7 +134,7 @@ gen-xkcd-pass() {
     local words=$(printf "(128+${entropy}-1)/${entropy}\n" | bc)
     for i in {1.."$num"}; do
         printf "$dict" | shuf --random-source=/dev/urandom -n "$words" | paste -sd '-'
-    done | column
+    done
 }
 gen-apple-pass() {
     # Generates a pseudoword with at least 128 bits entropy
@@ -163,7 +163,7 @@ gen-apple-pass() {
         regexp-replace pseudo '^(.{6})(.{6})(.{6})(.{6})(.{6})(.{6})$' \
                               '${match[1]}-${match[2]}-${match[3]}-${match[4]}-${match[5]}-${match[6]}'
         printf "${pseudo}\n"
-    done | column
+    done
 }
 
 ### Prompt
