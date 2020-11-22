@@ -142,24 +142,22 @@ gen-apple-pass() {
     [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
     local c="$(tr -cd bcdfghjkmnpqrstvwxz < /dev/urandom | head -c $((24*$num)))"
     local v="$(tr -cd aeiouy < /dev/urandom | head -c $((12*$num)))"
+    local d="$(tr -cd 0-9 < /dev/urandom | head -c $num)"
+    local p="$(tr -cd 056bchinotuz < /dev/urandom | head -c $num)"
+    typeset -A base36=(0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15 g 16 h 17 i 18
+                       j 19 k 20 l 21 m 22 n 23 o 24 p 25 q 26 r 27 s 28 t 29 u 30 v 31 w 32 x 33 y 34 z 35)
     for i in {1.."$num"}; do
         unset pseudo
-        typeset -A base36=(0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15
-                           g 16 h 17 i 18 j 19 k 20 l 21 m 22 n 23 o 24 p 25 q 26 r 27 s 28 t 29
-                           u 30 v 31 w 32 x 33 y 34 z 35)
         for j in {1..12}; do
             # the math here is messy, but it's in the name of performance
-            pseudo="${pseudo}${c:$(((2*$j-2)+(24*($i-1)))):1}${v:$((($j-1)+(12*($i-1)))):1}${c:$(((2*$j-1)+(24*($i-1)))):1}"
+            pseudo="${pseudo}${c:$((-26+24*$i+2*$j)):1}${v:$((-13+12*$i+$j)):1}${c:$((-25+24*$i+2*$j)):1}"
         done
-        local word_pos=$(printf '0\n1\n2\n3\n4\n5\n' | shuf --random-source=/dev/urandom -n 1)
-        local end_cap=$(printf '0\n5\n' | shuf --random-source=/dev/urandom -n 1)
-        local digit=$(printf '0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n' | shuf --random-source=/dev/urandom -n 1)
-        local digit_pos=$((30-6*${word_pos}+${end_cap}))
+        local digit_pos=$base36[$p[$i]]
         local char_pos=$digit_pos
         while [[ "$digit_pos" -eq "$char_pos" ]]; do
             char_pos=$base36[$(tr -cd 0-9a-z < /dev/urandom | head -c 1)]
         done
-        regexp-replace pseudo "^(.{$digit_pos}).(.*)$" '${match[1]}${digit}${match[2]}'
+        regexp-replace pseudo "^(.{$digit_pos}).(.*)$" '${match[1]}${d[$i]}${match[2]}'
         regexp-replace pseudo "^(.{$char_pos})(.)(.*)$" '${match[1]}${(U)match[2]}${match[3]}'
         regexp-replace pseudo '^(.{6})(.{6})(.{6})(.{6})(.{6})(.{6})$' \
                               '${match[1]}-${match[2]}-${match[3]}-${match[4]}-${match[5]}-${match[6]}'
