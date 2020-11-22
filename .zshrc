@@ -115,7 +115,7 @@ shorturl() {
 }
 
 ### Password generators
-gen_monkey_pass() {
+gen-monkey-pass() {
     # Generates an unambiguous password with at least 128 bits entropy 
     # Uses Crockford's base32
     [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
@@ -124,7 +124,7 @@ gen_monkey_pass() {
         printf "${pass:$((26*($i-1))):26}\n" # add newline
     done | column
 }
-gen_xkcd_pass() {
+gen-xkcd-pass() {
     # Generates a passphrase with at least 128 bits entropy
     [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
     local file="/usr/share/dict/words"
@@ -136,7 +136,7 @@ gen_xkcd_pass() {
         printf "$dict" | shuf --random-source=/dev/urandom -n "$words" | paste -sd '-'
     done | column
 }
-gen_apple_pass() {
+gen-apple-pass() {
     # Generates a pseudoword with at least 128 bits entropy
     [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
     local c="$(tr -cd bcdfghjkmnpqrstvwxz < /dev/urandom | head -c $((24*$num)))"
