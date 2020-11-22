@@ -119,7 +119,7 @@ gen_monkey_pass() {
     # Generates an unambiguous password with at least 128 bits entropy 
     # Uses Crockford's base32
     [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
-    pass=$(tr -cd '0-9a-hjkmnp-tv-z' < /dev/urandom | head -c $((26*$num)))
+    local pass=$(tr -cd '0-9a-hjkmnp-tv-z' < /dev/urandom | head -c $((26*$num)))
     for i in {1.."$num"}; do
         printf "${pass:$((26*($i-1))):26}\n" # add newline
     done | column
@@ -127,11 +127,11 @@ gen_monkey_pass() {
 gen_xkcd_pass() {
     # Generates a passphrase with at least 128 bits entropy
     [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
-    file="/usr/share/dict/words"
-    dict=$(grep -E '^[a-zA-Z]{3,6}$' "$file")
-    size=$(printf "$dict" | wc -l | sed -e 's/ //g')
-    entropy=$(printf "l(${size})/l(2)\n" | bc -l)
-    words=$(printf "(128+${entropy}-1)/${entropy}\n" | bc)
+    local file="/usr/share/dict/words"
+    local dict=$(grep -E '^[a-zA-Z]{3,6}$' "$file")
+    local size=$(printf "$dict" | wc -l | sed -e 's/ //g')
+    local entropy=$(printf "l(${size})/l(2)\n" | bc -l)
+    local words=$(printf "(128+${entropy}-1)/${entropy}\n" | bc)
     for i in {1.."$num"}; do
         printf "$dict" | shuf --random-source=/dev/urandom -n "$words" | paste -sd '-'
     done | column
@@ -139,8 +139,8 @@ gen_xkcd_pass() {
 gen_apple_pass() {
     # Generates a pseudoword with at least 128 bits entropy
     [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
-    c="$(tr -cd bcdfghjkmnpqrstvwxz < /dev/urandom | head -c $((24*$num)))"
-    v="$(tr -cd aeiouy < /dev/urandom | head -c $((12*$num)))"
+    local c="$(tr -cd bcdfghjkmnpqrstvwxz < /dev/urandom | head -c $((24*$num)))"
+    local v="$(tr -cd aeiouy < /dev/urandom | head -c $((12*$num)))"
     for i in {1.."$num"}; do
         unset pseudo
         typeset -A base36=(0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15
@@ -150,11 +150,11 @@ gen_apple_pass() {
             # the math here is messy, but it's in the name of performance
             pseudo="${pseudo}${c:$(((2*$j-2)+(24*($i-1)))):1}${v:$((($j-1)+(12*($i-1)))):1}${c:$(((2*$j-1)+(24*($i-1)))):1}"
         done
-        word_pos=$(printf '0\n1\n2\n3\n4\n5\n' | shuf --random-source=/dev/urandom -n 1)
-        end_cap=$(printf '0\n5\n' | shuf --random-source=/dev/urandom -n 1)
-        digit=$(printf '0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n' | shuf --random-source=/dev/urandom -n 1)
-        digit_pos=$((30-6*${word_pos}+${end_cap}))
-        char_pos=$digit_pos
+        local word_pos=$(printf '0\n1\n2\n3\n4\n5\n' | shuf --random-source=/dev/urandom -n 1)
+        local end_cap=$(printf '0\n5\n' | shuf --random-source=/dev/urandom -n 1)
+        local digit=$(printf '0\n1\n2\n3\n4\n5\n6\n7\n8\n9\n' | shuf --random-source=/dev/urandom -n 1)
+        local digit_pos=$((30-6*${word_pos}+${end_cap}))
+        local char_pos=$digit_pos
         while [[ "$digit_pos" -eq "$char_pos" ]]; do
             char_pos=$base36[$(tr -cd 0-9a-z < /dev/urandom | head -c 1)]
         done
