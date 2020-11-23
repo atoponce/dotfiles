@@ -31,6 +31,8 @@ autoload -U promptinit && promptinit
 autoload -U regexp-replace
 autoload is-at-least
 
+zmodload zsh/mathfunc
+
 zstyle :compinstall filename '~/.zshrc'
 
 ### Keybindings
@@ -118,7 +120,7 @@ shorturl() {
 gen-monkey-pass() {
     # Generates an unambiguous password with at least 128 bits entropy 
     # Uses Crockford's base32
-    [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
+    [[ $1 =~ '[0-9]+' ]] && local num=$1 || local num=1
     local pass=$(tr -cd '0-9a-hjkmnp-tv-z' < /dev/urandom | head -c $((26*$num)))
     for i in {1.."$num"}; do
         printf "${pass:$((26*($i-1))):26}\n" # add newline
@@ -126,12 +128,12 @@ gen-monkey-pass() {
 }
 gen-xkcd-pass() {
     # Generates a passphrase with at least 128 bits entropy
-    [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
-    local file="/usr/share/dict/words"
-    local dict=$(grep -E '^[a-zA-Z]{3,6}$' "$file")
+    [[ $1 =~ '[0-9]+' ]] && local num=$1 || local num=1
+    #[[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
+    local dict=$(grep -E '^[a-zA-Z]{3,6}$' /usr/share/dict/words)
     local size=$(printf "$dict" | wc -l | sed -e 's/ //g')
-    local entropy=$(printf "l(${size})/l(2)\n" | bc -l)
-    local words=$(printf "(128+${entropy}-1)/${entropy}\n" | bc)
+    local entropy=$((log($size)/log(2)))
+    local words=$((int(ceil(128/$entropy))))
     for i in {1.."$num"}; do
         printf "$words-"
         printf "$dict" | shuf --random-source=/dev/urandom -n "$words" | paste -sd '-'
@@ -139,7 +141,7 @@ gen-xkcd-pass() {
 }
 gen-apple-pass() {
     # Generates a pseudoword with at least 128 bits entropy
-    [[ $(printf "$1" | grep -E '[0-9]+') ]] && num="$1" || num="1"
+    [[ $1 =~ '[0-9]+' ]] && local num=$1 || local num=1
     local c="$(tr -cd bcdfghjkmnpqrstvwxz < /dev/urandom | head -c $((24*$num)))"
     local v="$(tr -cd aeiouy < /dev/urandom | head -c $((12*$num)))"
     local d="$(tr -cd 0-9 < /dev/urandom | head -c $num)"
@@ -149,7 +151,7 @@ gen-apple-pass() {
     for i in {1.."$num"}; do
         unset pseudo
         for j in {1..12}; do
-            # the math here is messy, but it's in the name of performance
+            # iterate over $c and $v for each $i and each $j
             pseudo="${pseudo}${c:$((-26+24*$i+2*$j)):1}${v:$((-13+12*$i+$j)):1}${c:$((-25+24*$i+2*$j)):1}"
         done
         local digit_pos=$base36[$p[$i]]
