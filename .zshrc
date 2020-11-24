@@ -130,9 +130,7 @@ gen-xkcd-pass() {
     # Generates a passphrase with at least 128 bits entropy
     [[ $1 =~ '[0-9]+' ]] && local num=$1 || local num=1
     local dict=$(grep -E '^[a-zA-Z]{3,6}$' /usr/share/dict/words)
-    local size=${(w)#dict}
-    local entropy=$((log($size)/log(2)))
-    local words=$((int(ceil(128/$entropy))))
+    local words=$((int(ceil(128*log(2)/log(${(w)#dict})))))
     for i in {1.."$num"}; do
         printf "$words-"
         printf "$dict" | shuf --random-source=/dev/urandom -n "$words" | paste -sd '-'
@@ -150,7 +148,7 @@ gen-apple-pass() {
     for i in {1.."$num"}; do
         unset pseudo
         for j in {1..12}; do
-            # iterate over $c and $v for each $i and each $j
+            # uniformly iterating through the large $c and $v strings for each $i and each $j
             pseudo="${pseudo}${c:$((-26+24*$i+2*$j)):1}${v:$((-13+12*$i+$j)):1}${c:$((-25+24*$i+2*$j)):1}"
         done
         local digit_pos=$base36[$p[$i]]
