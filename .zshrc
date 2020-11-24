@@ -120,7 +120,7 @@ shorturl() {
 gen-monkey-pass() {
     # Generates an unambiguous password with at least 128 bits entropy 
     # Uses Crockford's base32
-    [[ $1 =~ '[0-9]+' ]] && local num=$1 || local num=1
+    [[ $1 =~ '^[0-9]+$' ]] && local num=$1 || local num=1
     local pass=$(tr -cd '0-9a-hjkmnp-tv-z' < /dev/urandom | head -c $((26*$num)))
     for i in {1.."$num"}; do
         printf "${pass:$((26*($i-1))):26}\n" # add newline
@@ -128,7 +128,7 @@ gen-monkey-pass() {
 }
 gen-xkcd-pass() {
     # Generates a passphrase with at least 128 bits entropy
-    [[ $1 =~ '[0-9]+' ]] && local num=$1 || local num=1
+    [[ $1 =~ '^[0-9]+$' ]] && local num=$1 || local num=1
     local dict=$(grep -E '^[a-zA-Z]{3,6}$' /usr/share/dict/words)
     local words=$((int(ceil(128*log(2)/log(${(w)#dict})))))
     for i in {1.."$num"}; do
@@ -138,7 +138,7 @@ gen-xkcd-pass() {
 }
 gen-apple-pass() {
     # Generates a pseudoword with at least 128 bits entropy
-    [[ $1 =~ '[0-9]+' ]] && local num=$1 || local num=1
+    [[ $1 =~ '^[0-9]+$' ]] && local num=$1 || local num=1
     local c="$(tr -cd bcdfghjkmnpqrstvwxz < /dev/urandom | head -c $((24*$num)))"
     local v="$(tr -cd aeiouy < /dev/urandom | head -c $((12*$num)))"
     local d="$(tr -cd 0-9 < /dev/urandom | head -c $num)"
