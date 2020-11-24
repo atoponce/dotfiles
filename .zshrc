@@ -139,7 +139,7 @@ gen-xkcd-pass() {
 gen-apple-pass() {
     # Generates a pseudoword with at least 128 bits entropy
     [[ $1 =~ '^[0-9]+$' ]] && local num=$1 || local num=1
-    local c="$(tr -cd bcdfghjkmnpqrstvwxz < /dev/urandom | head -c $((24*$num)))"
+    local c="$(tr -cd b-df-hj-np-tv-xz < /dev/urandom | head -c $((24*$num)))"
     local v="$(tr -cd aeiouy < /dev/urandom | head -c $((12*$num)))"
     local d="$(tr -cd 0-9 < /dev/urandom | head -c $num)"
     local p="$(tr -cd 056bchinotuz < /dev/urandom | head -c $num)"
