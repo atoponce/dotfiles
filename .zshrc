@@ -129,7 +129,7 @@ gen-monkey-pass() {
 gen-xkcd-pass() {
     # Generates a passphrase with at least 128 bits entropy
     [[ $1 =~ '^[0-9]+$' ]] && local num=$1 || local num=1
-    local dict=$(grep -E '^[a-zA-Z]{3,6}$' /usr/share/dict/words)
+    local dict=$(grep -E '^[a-zA-Z]{,6}$' /usr/share/dict/words)
     local words=$((int(ceil(128*log(2)/log(${(w)#dict})))))
     for i in {1.."$num"}; do
         printf "$words-"
