@@ -1,3 +1,8 @@
+export ZSH="$HOME/src/ohmyzsh" # Production
+#export ZSH="$HOME/src/atoponce-ohmyzsh" # Development fork
+plugins=(genpass)
+source $ZSH/oh-my-zsh.sh
+
 # Make sure umask is set appropriately, login or not
 umask 0002
 
@@ -10,10 +15,6 @@ SAVEHIST="10000"
 EDITOR="vim"
 VISUAL="vim"
 PAGER="less"
-
-if [[ "$TERM" = "putty" ]]; then
-    export LC_ALL=C
-fi
 
 # modifying the PATH adding the sbin directories
 path+=( /sbin /usr/sbin /usr/local/sbin )
@@ -29,7 +30,6 @@ unsetopt autocd beep
 autoload -U colors && colors
 autoload -Uz compinit && compinit
 autoload -U promptinit && promptinit
-autoload -U regexp-replace
 autoload is-at-least
 
 zmodload zsh/mathfunc
@@ -118,54 +118,6 @@ shorturl() {
     echo
 }
 
-### Password generators
-gen-monkey-pass() {
-    # Generates an unambiguous password with at least 128 bits entropy 
-    # Uses Crockford's base32
-    [[ $1 =~ '^[0-9]+$' ]] && local num=$1 || local num=1
-    local pass=$(LC_ALL=C tr -cd '0-9a-hjkmnp-tv-z' < /dev/urandom | head -c $((26*$num)))
-    for i in {1.."$num"}; do
-        printf "${pass:$((26*($i-1))):26}\n" # add newline
-    done
-}
-gen-xkcd-pass() {
-    # Generates a passphrase with at least 128 bits entropy
-    [[ $1 =~ '^[0-9]+$' ]] && local num=$1 || local num=1
-    local dict=$(grep -E '^[a-zA-Z]{,6}$' /usr/share/dict/words)
-    local words=$((int(ceil(128*log(2)/log(${(w)#dict})))))
-    for i in {1.."$num"}; do
-        printf "$words-"
-        printf "$dict" | shuf --random-source=/dev/urandom -n "$words" | paste -sd '-'
-    done
-}
-gen-apple-pass() {
-    # Generates a pseudoword with at least 128 bits entropy
-    [[ $1 =~ '^[0-9]+$' ]] && local num=$1 || local num=1
-    local c="$(LC_ALL=C tr -cd b-df-hj-np-tv-xz < /dev/urandom | head -c $((24*$num)))"
-    local v="$(LC_ALL=C tr -cd aeiouy < /dev/urandom | head -c $((12*$num)))"
-    local d="$(LC_ALL=C tr -cd 0-9 < /dev/urandom | head -c $num)"
-    local p="$(LC_ALL=C tr -cd 056bchinotuz < /dev/urandom | head -c $num)"
-    typeset -A base36=(0 0 1 1 2 2 3 3 4 4 5 5 6 6 7 7 8 8 9 9 a 10 b 11 c 12 d 13 e 14 f 15 g 16 h 17 i 18
-                       j 19 k 20 l 21 m 22 n 23 o 24 p 25 q 26 r 27 s 28 t 29 u 30 v 31 w 32 x 33 y 34 z 35)
-    for i in {1.."$num"}; do
-        unset pseudo
-        for j in {1..12}; do
-            # uniformly iterating through the large $c and $v strings for each $i and each $j
-            pseudo="${pseudo}${c:$((-26+24*$i+2*$j)):1}${v:$((-13+12*$i+$j)):1}${c:$((-25+24*$i+2*$j)):1}"
-        done
-        local digit_pos=$base36[$p[$i]]
-        local char_pos=$digit_pos
-        while [[ "$digit_pos" -eq "$char_pos" ]]; do
-            char_pos=$base36[$(LC_ALL=C tr -cd 0-9a-z < /dev/urandom | head -c 1)]
-        done
-        regexp-replace pseudo "^(.{$digit_pos}).(.*)$" '${match[1]}${d[$i]}${match[2]}'
-        regexp-replace pseudo "^(.{$char_pos})(.)(.*)$" '${match[1]}${(U)match[2]}${match[3]}'
-        regexp-replace pseudo '^(.{6})(.{6})(.{6})(.{6})(.{6})(.{6})$' \
-                              '${match[1]}-${match[2]}-${match[3]}-${match[4]}-${match[5]}-${match[6]}'
-        printf "${pseudo}\n"
-    done
-}
-
 ### Prompt
 loc=5
 walk=(0 0 0 0 1 0 0 0 0)
@@ -185,16 +137,15 @@ precmd() {
     row2="$coins[$walk[4]]$coins[$walk[5]]$coins[$walk[6]]"
     row3="$coins[$walk[7]]$coins[$walk[8]]$coins[$walk[9]]"
 
-      if [[ $loc -eq 1 ]]; then row1="$bishop$coins[$walk[2]]$coins[$walk[3]]"
-    elif [[ $loc -eq 2 ]]; then row1="$coins[$walk[1]]$bishop$coins[$walk[3]]"
-    elif [[ $loc -eq 3 ]]; then row1="$coins[$walk[1]]$coins[$walk[2]]$bishop"
-    elif [[ $loc -eq 4 ]]; then row2="$bishop$coins[$walk[5]]$coins[$walk[6]]"
-    elif [[ $loc -eq 5 ]]; then row2="$coins[$walk[4]]$bishop$coins[$walk[6]]"
-    elif [[ $loc -eq 6 ]]; then row2="$coins[$walk[4]]$coins[$walk[5]]$bishop"
-    elif [[ $loc -eq 7 ]]; then row3="$bishop$coins[$walk[8]]$coins[$walk[9]]"
-    elif [[ $loc -eq 8 ]]; then row3="$coins[$walk[7]]$bishop$coins[$walk[9]]"
-    elif [[ $loc -eq 9 ]]; then row3="$coins[$walk[7]]$coins[$walk[8]]$bishop"
-    fi
+    [[ $loc -eq 1 ]] && row1="$bishop$coins[$walk[2]]$coins[$walk[3]]"
+    [[ $loc -eq 2 ]] && row1="$coins[$walk[1]]$bishop$coins[$walk[3]]"
+    [[ $loc -eq 3 ]] && row1="$coins[$walk[1]]$coins[$walk[2]]$bishop"
+    [[ $loc -eq 4 ]] && row2="$bishop$coins[$walk[5]]$coins[$walk[6]]"
+    [[ $loc -eq 5 ]] && row2="$coins[$walk[4]]$bishop$coins[$walk[6]]"
+    [[ $loc -eq 6 ]] && row2="$coins[$walk[4]]$coins[$walk[5]]$bishop"
+    [[ $loc -eq 7 ]] && row3="$bishop$coins[$walk[8]]$coins[$walk[9]]"
+    [[ $loc -eq 8 ]] && row3="$coins[$walk[7]]$bishop$coins[$walk[9]]"
+    [[ $loc -eq 9 ]] && row3="$coins[$walk[7]]$coins[$walk[8]]$bishop"
 
     # +---+---+---+
     # | 1 | 2 | 3 |  1       2
@@ -264,9 +215,7 @@ precmd() {
     
     # there are only 9 coin weights: .:-=+*#%@
     for cell in {1..9}; do
-        if [[ $walk[$cell] -gt 9 ]]; then
-            (( walk[$cell]=9 ))
-        fi
+        [[ $walk[$cell] -gt 9 ]] && (( walk[$cell]=9 ))
     done
 
     # reset when the drunk bishop has visited every cell 9 times
