@@ -1,5 +1,5 @@
-export ZSH="$HOME/src/ohmyzsh" # Production
-#export ZSH="$HOME/src/atoponce-ohmyzsh" # Development fork
+#export ZSH="$HOME/src/ohmyzsh" # Production
+export ZSH="$HOME/src/atoponce-ohmyzsh" # Development fork
 plugins=(genpass)
 source $ZSH/oh-my-zsh.sh
 
@@ -34,6 +34,7 @@ autoload is-at-least
 
 zmodload zsh/mathfunc
 zmodload zsh/datetime
+zmodload zsh/system
 
 zstyle :compinstall filename '~/.zshrc'
 
@@ -118,6 +119,17 @@ shorturl() {
     echo
 }
 
+# 32-bit cryptographically secure RNG
+srandom() {
+    zmodload zsh/system
+    local byte
+    local -i rnd=0
+    repeat 4; do
+        sysread -s 1 byte || return
+        rnd=$(( rnd << 8 | #byte ))
+    done < /dev/urandom
+    print -r -- $rnd
+}
 ### Prompt
 loc=5
 walk=(0 0 0 0 1 0 0 0 0)
