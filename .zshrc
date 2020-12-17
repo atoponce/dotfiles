@@ -120,16 +120,19 @@ shorturl() {
 }
 
 # 32-bit cryptographically secure RNG
+# Assumes ZSH is compiled with 64-bit integers
+# See https://gist.github.com/romkatv/a6cede40714ec77d4da73605c5ddb36a as a math function.
 srandom() {
     zmodload zsh/system
     local byte
     local -i rnd=0
     repeat 4; do
-        sysread -s 1 byte || return
+        sysread -s 1 byte < /dev/urandom || return
         rnd=$(( rnd << 8 | #byte ))
-    done < /dev/urandom
+    done
     print -r -- $rnd
 }
+
 ### Prompt
 loc=5
 walk=(0 0 0 0 1 0 0 0 0)
@@ -140,11 +143,9 @@ precmd() {
     # coin weight. not ASCII, but full-width unicode
     typeset -A coins=(0 "　" 1 '，' 2 '：' 3 '－' 4 '＝' 5 '＋' 6 '＊' 7 '＃' 8 '％' 9 '＠')
 
-    if [[ -w $PWD ]]; then cdir=$(print -P '%~')
-    else cdir=$(print -P '%B%F{red}%~%f%b')
-    fi
+    [[ -w $PWD ]] && cdir=$(print -P '%~') || cdir=$(print -P '%B%F{red}%~%f%b')
 
-    bishop='🥴'
+    local bishop='🥴'
     row1="$coins[$walk[1]]$coins[$walk[2]]$coins[$walk[3]]"
     row2="$coins[$walk[4]]$coins[$walk[5]]$coins[$walk[6]]"
     row3="$coins[$walk[7]]$coins[$walk[8]]$coins[$walk[9]]"
@@ -160,11 +161,11 @@ precmd() {
     [[ $loc -eq 9 ]] && row3="$coins[$walk[7]]$coins[$walk[8]]$bishop"
 
     # +---+---+---+
-    # | 1 | 2 | 3 |  1       2
-    # +---+---+---+    \   /
+    # | 1 | 2 | 3 |    1   2
+    # +---+---+---+     \ /
     # | 4 | 5 | 6 |      X
-    # +---+---+---+    /   \
-    # | 7 | 8 | 9 |  3       4
+    # +---+---+---+     / \
+    # | 7 | 8 | 9 |    3   4
     # +---+---+---+
 
     local num=$(LC_ALL=C tr -cd 1234 < /dev/urandom | head -c 1)
