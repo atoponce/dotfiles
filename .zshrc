@@ -1,7 +1,7 @@
 export ZSH_DISABLE_COMPFIX="true" # because people don't understand user private groups
 
-#export ZSH="$HOME/src/ohmyzsh" # Production
-export ZSH="$HOME/src/atoponce-ohmyzsh" # Development fork
+export ZSH="$HOME/src/ohmyzsh" # Production
+#export ZSH="$HOME/src/atoponce-ohmyzsh" # Development fork
 plugins=(genpass)
 source $ZSH/oh-my-zsh.sh
 
