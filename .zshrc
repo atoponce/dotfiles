@@ -1,3 +1,4 @@
+DISABLE_AUTO_UPDATE="true"
 export ZSH="$HOME/src/ohmyzsh" # Production
 #export ZSH="$HOME/src/atoponce-ohmyzsh" # Development fork
 plugins=(genpass)
