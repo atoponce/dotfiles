@@ -18,7 +18,7 @@ VISUAL="vim"
 PAGER="less"
 
 # modifying the PATH adding the sbin directories
-path+=( /sbin /usr/sbin /usr/local/sbin )
+path+=( /sbin /usr/sbin /usr/local/sbin ~/.local/bin )
 path=( ${(u)path} )
 
 # various options to set/unset
