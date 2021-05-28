@@ -13,7 +13,6 @@ set colorcolumn=100                 " column warning line at 100 characters
 set cryptmethod=blowfish2           " use the blowfish rather than default "zip" method
 set expandtab                       " convert tabs to spaces
 set guifont=Liberation\ Mono\ 8     " set the appropriate font
-set guioptions='aegit'              " set mouse options, and otherwise
 set laststatus=2                    " always set a status line at the bottom
 set nobackup                        " don't create a .file.swp
 set nocompatible                    " don't use strict vi mode with vim and gvim
@@ -70,4 +69,12 @@ if has("autocmd")
 	" Only open folds with insert commands.
 	set foldopen=insert
     endfunction
+
+    """"""""""""""""""""""
+    " File type settings "
+    """"""""""""""""""""""
+    autocmd BufRead,BufNewFile *.html set colorcolumn=0 shiftwidth=2 softtabstop=2 textwidth=0
+    autocmd BufRead,BufNewFile *.js set colorcolumn=0 shiftwidth=2 softtabstop=2 textwidth=0
+    autocmd BufRead,BufNewFile *.css set shiftwidth=2 softtabstop=2
+
 endif " has ("autocmd")

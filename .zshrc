@@ -10,6 +10,7 @@ umask 0002
 # Variables for xterm and such
 export LC_ALL="en_US.UTF-8"
 export TERM="xterm-256color"
+export GPG_TTY=$(tty)
 HISTFILE=~"/.histfile"
 HISTSIZE="10000"
 SAVEHIST="10000"

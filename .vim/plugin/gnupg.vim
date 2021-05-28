@@ -1,1 +1,1 @@
-/home/atoponce/src/vim-gnupg/plugin/gnupg.vim
+/usr/share/vim-scripts/gnupg/plugin/gnupg.vim
