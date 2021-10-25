@@ -1,4 +1,5 @@
 DISABLE_AUTO_UPDATE="true"
+ZSH_DISABLE_COMPFIX="true"
 export ZSH="$HOME/src/ohmyzsh" # Production
 #export ZSH="$HOME/src/atoponce-ohmyzsh" # Development fork
 plugins=(genpass)
@@ -102,6 +103,32 @@ unset k
 alias ls='ls --color=auto'
 
 ### General purpose functions
+collect-entropy() {
+    printf "Type, not copy/paste these 50 words in the event tester window.\n"
+    printf "Move your mouse a bit in the event tester window afterward if desired.\n"
+    printf "Close the event tester window when finished.\n"
+    printf "\n"
+
+    # Need at least 1,210 unique words for 512 bits entropy out of 50 words.
+    # american-english-small in Debian provides 6,887 with this regex:
+    words=$(LC_ALL=C grep -E '^[[:alpha:]]{7}$' /usr/share/dict/words)
+    # tee(1) is used to mix in entropy from the system RNG via shuf(1)
+    printf $words | shuf --random-source=/dev/urandom | head -n 50 | paste -sd ' ' | fold | tee /tmp/entropy.txt
+    # collect precise timestamps of keypresses and mouse movements
+    strace --timestamps=precision:ns xev &>> /tmp/entropy.txt
+    # whiten collected data via compression
+    gzip -f -9 /tmp/entropy.txt
+
+    printf "\n"
+    printf "Here is your entropy: "
+
+    # use b2sum(1) as a fixed-length entropy extractor
+    b2sum /tmp/entropy.txt.gz | awk '{print $1}'
+    # remove any evidence from the filesystem
+    shred /tmp/entropy.txt.gz
+    rm /tmp/entropy.txt.gz
+}
+
 alphaimg() {
     convert $1 -alpha on -channel A -evaluate set 99% +channel $1
     optipng -q $1
