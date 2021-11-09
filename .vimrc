@@ -76,5 +76,8 @@ if has("autocmd")
     autocmd BufRead,BufNewFile *.html set colorcolumn=0 shiftwidth=2 softtabstop=2 textwidth=0
     autocmd BufRead,BufNewFile *.js set colorcolumn=0 shiftwidth=2 softtabstop=2 textwidth=0
     autocmd BufRead,BufNewFile *.css set shiftwidth=2 softtabstop=2
+    autocmd BufRead,BufNewFile *.md set shiftwidth=2 softtabstop=2
 
 endif " has ("autocmd")
+
+packloadall

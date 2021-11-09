@@ -110,9 +110,14 @@ collect-entropy() {
     printf "\n"
 
     # Need at least 1,210 unique words for 512 bits entropy out of 50 words.
-    # american-english-small in Debian provides 6,887 with this regex:
+    # american-english-small in Debian provides 5,617 with this regex:
     words=$(LC_ALL=C grep -E '^[[:alpha:]]{7}$' /usr/share/dict/words)
     # tee(1) is used to mix in entropy from the system RNG via shuf(1)
+    # There are log2(n * n-1 * n-2 * ... * n-48 * n-49 * n-50) bits security due to shuf(1)
+    # american-english-small thus provides about 622-bits security with the shuffled words.
+    # The rest of the security comes from:
+    #   key press precise timestamp
+    #   key release precise timestamp
     printf $words | shuf --random-source=/dev/urandom | head -n 50 | paste -sd ' ' | fold | tee /tmp/entropy.txt
     # collect precise timestamps of keypresses and mouse movements
     strace --timestamps=precision:ns xev &>> /tmp/entropy.txt
