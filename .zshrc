@@ -131,7 +131,7 @@ verify() {
     local pubkey="$HOME/.config/minisign/public.key"
 
     for f in "$@"; do
-        minisign -V -m "$f" -p "$pubkey"
+        minisign -V -p "$pubkey" -m "$f"
     done
 }
 
