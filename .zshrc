@@ -103,6 +103,38 @@ unset k
 alias ls='ls --color=auto'
 
 ### General purpose functions
+encrypt() {
+    local pubkey="$HOME/.config/age/public.key"
+
+    for f in "$@"; do
+        age -e -R "$pubkey" -o "$f".age "$f"
+    done
+}
+
+decrypt() {
+    local privkey="$HOME/.config/age/private.key"
+
+    for f in "$@"; do
+        age -d -i "$privkey" -o "$f" "${f:r}"
+    done
+}
+
+sign() {
+    local privkey="$HOME/.config/minisign/private.key"
+
+    for f in "$@"; do
+        minisign -S -s "$privkey" -m "$f"
+    done
+}
+
+verify() {
+    local pubkey="$HOME/.config/minisign/public.key"
+
+    for f in "$@"; do
+        minisign -V -m "$f" -p "$pubkey"
+    done
+}
+
 collect-entropy() {
     printf "Type, not copy/paste these 50 words in the event tester window.\n"
     printf "Move your mouse a bit in the event tester window afterward if desired.\n"
