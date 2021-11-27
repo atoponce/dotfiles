@@ -103,6 +103,16 @@ unset k
 alias ls='ls --color=auto'
 
 ### General purpose functions
+genpass-csv() {
+    # Generates 130-bits base32 "comma-separated" password.
+    #
+    # Also:
+    #   base64 < /dev/urandom | head -c 22 | sed -r 's/(.{11})/"\1",/g;s/,$//g'; echo
+    #
+    # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
+    # > breached. Until next time!" ~ Skeletor
+    base32 < /dev/urandom | head -c 26 | tr A-M a-m | sed -r 's/(.{13})/"\1",/g;s/,$//g'; echo
+}
 encrypt() {
     local pubkey="$HOME/.config/age/public.key"
 
