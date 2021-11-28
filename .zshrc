@@ -111,7 +111,7 @@ genpass-csv() {
     #
     # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
     # > breached. Until next time!" ~ Skeletor
-    base32 < /dev/urandom | head -c 26 | tr A-M a-m | sed -r 's/(.{13})/"\1",/g;s/,$//g'; echo
+    tr -cd 0-9A-HJKMnp-tv-z < /dev/urandom | head -c 26 | sed -r 's/(.{13})/"\1",/g;s/,$//g'; echo
 }
 encrypt() {
     local pubkey="$HOME/.config/age/public.key"
