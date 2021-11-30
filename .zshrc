@@ -104,14 +104,11 @@ alias ls='ls --color=auto'
 
 ### General purpose functions
 genpass-csv() {
-    # Generates 130-bits base32 "comma-separated" password.
-    #
-    # Also:
-    #   base64 < /dev/urandom | head -c 22 | sed -r 's/(.{11})/"\1",/g;s/,$//g'; echo
+    # Generates 95-bits base62 "comma-separated" password.
     #
     # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
     # > breached. Until next time!" ~ Skeletor
-    tr -cd 0-9A-HJKMnp-tv-z < /dev/urandom | head -c 26 | sed -r 's/(.{13})/"\1",/g;s/,$//g'; echo
+    tr -cd 0-9A-Za-z < /dev/urandom | head -c 16 | sed -r 's/(.{8})/"\1",/g;s/,$//g'; echo
 }
 encrypt() {
     local pubkey="$HOME/.config/age/public.key"
