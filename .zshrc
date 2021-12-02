@@ -108,7 +108,7 @@ genpass-csv() {
     #
     # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
     # > breached. Until next time!" ~ Skeletor
-    tr -cd 0-9A-Za-z < /dev/urandom | head -c 16 | sed -r 's/(.{8})/\1,/g;s/,$//g'
+    tr -cd 0-9A-Za-z < /dev/urandom | head -c 16 | sed -r 's/^(.{8})/\1,/g'
     echo
 }
 encrypt() {
