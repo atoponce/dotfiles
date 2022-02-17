@@ -144,33 +144,43 @@ verify() {
 }
 
 collect-entropy() {
-    printf "Type, not copy/paste these 50 words in the event tester window.\n"
+    zmodload zsh/mathfunc
+
+    local wordlist=($(grep -P '^[aoeuidhtns]{3,}$' /usr/share/dict/words))
+    local length=${#wordlist[@]}
+    local min=$(( 65536 % $length ))
+    local wordcount=$(( int(ceil(512/log2($length))) ))
+    local words=()
+
+    for (( i=1; i<=${wordcount}; $((i += 1)) )); do
+        local rand=$(( 0x$(xxd -ps -l 2 /dev/urandom) ))
+
+        until [[ $rand -ge $min ]]; do
+            rand=$(( 0x$(xxd -ps -l 2 /dev/urandom) ))
+        done
+
+        words+=(${wordlist[$(( ($rand % $length) + 1 ))]})
+    done
+
+    printf "Type, not copy/paste these ${wordcount} words in the event tester window.\n"
     printf "Move your mouse a bit in the event tester window afterward if desired.\n"
     printf "Close the event tester window when finished.\n"
     printf "\n"
 
-    # Need at least 1,210 unique words for 512 bits entropy out of 50 words.
-    # american-english-small in Debian provides 5,617 with this regex:
-    words=$(LC_ALL=C grep -E '^[[:alpha:]]{7}$' /usr/share/dict/words)
-
-    # There are log2(n * n-1 * n-2 * ... * n-48 * n-49 * n-50) bits security due to shuf(1)
-    # american-english-small thus provides about 622-bits security with the shuffled words.
-    # The rest of the security comes from:
+    # Security comes from:
     #   key press precise timestamp
-    #   key duration precise timestamp
     #   key release precise timestamp
-    entropy1=$(printf %s $words | shuf --random-source=/dev/urandom | head -n 50 | paste -sd ' ' | fold)
-    printf %s "$entropy1"
+    printf "$words\n" | fold -s
 
     # collect precise timestamps of keypresses and mouse movements
-    entropy2=$(strace --timestamps=precision:ns xev 2>&1)
+    entropy=$(strace --timestamps=precision:ns xev 2>&1)
 
     printf "\n\n"
     printf "Here is your entropy: "
 
     # whiten collected data via compression
     # use b2sum(1) as a fixed-length entropy extractor
-    printf %s "${entropy1}${entropy2}" | gzip -c | b2sum | awk '{print $1}'
+    printf %s "${entropy}" | gzip -c | b2sum | awk '{print $1}'
 }
 
 alphaimg() {
@@ -180,7 +190,7 @@ alphaimg() {
 
 cleanimg() {
     exiftool -q -all= -overwrite_original $1
-    optipng -q $1
+    optipng -quiet $1
 }
 
 expandurl() {
