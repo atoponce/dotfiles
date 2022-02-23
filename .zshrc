@@ -146,13 +146,13 @@ verify() {
 collect-entropy() {
     zmodload zsh/mathfunc
 
-    local wordlist=($(grep -P '^[aoeuidhtns]{3,}$' /usr/share/dict/words))
+    local wordlist=($(grep -P '^[aoeuidhtns]+$' /usr/share/dict/words))
     local length=${#wordlist[@]}
     local min=$(( 65536 % $length ))
     local wordcount=$(( int(ceil(512/log2($length))) ))
     local words=()
 
-    for (( i=1; i<=${wordcount}; $((i += 1)) )); do
+    for (( i=1; i<=${wordcount}; i++ )); do
         local rand=$(( 0x$(xxd -ps -l 2 /dev/urandom) ))
 
         until [[ $rand -ge $min ]]; do
@@ -174,13 +174,11 @@ collect-entropy() {
 
     # collect precise timestamps of keypresses and mouse movements
     entropy=$(strace --timestamps=precision:ns xev 2>&1)
-
-    printf "\n\n"
-    printf "Here is your entropy: "
+    printf "\n"
 
     # whiten collected data via compression
     # use b2sum(1) as a fixed-length entropy extractor
-    printf %s "${entropy}" | gzip -c | b2sum | awk '{print $1}'
+    printf %s "${entropy}" | b2sum | awk '{print $1}'
 }
 
 alphaimg() {
