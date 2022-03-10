@@ -4,6 +4,7 @@ export ZSH="$HOME/src/ohmyzsh" # Production
 #export ZSH="$HOME/src/atoponce-ohmyzsh" # Development fork
 plugins=(genpass)
 source $ZSH/oh-my-zsh.sh
+source $HOME/.cargo/env
 
 # Make sure umask is set appropriately, login or not
 umask 0002
