@@ -145,39 +145,37 @@ verify() {
 }
 
 collect-entropy() {
-    zmodload zsh/mathfunc
+    local print_line() {
+        local v=$(tr -cd aiou < /dev/urandom | head -c 16)
+        local c=$(tr -cd bdfghjklmnprstvz < /dev/urandom | head -c 24)
 
-    local wordlist=($(grep -P '^[aoeuidhtns]+$' /usr/share/dict/words))
-    local length=${#wordlist[@]}
-    local min=$(( 65536 % $length ))
-    local wordcount=$(( int(ceil(512/log2($length))) ))
-    local words=()
+        printf "${c[1]}${v[1]}${c[2]}${v[2]}${c[3]} "
+        printf "${c[4]}${v[3]}${c[5]}${v[4]}${c[6]} "
+        printf "${c[7]}${v[5]}${c[8]}${v[6]}${c[9]} "
+        printf "${c[10]}${v[7]}${c[11]}${v[8]}${c[12]} "
+        printf "${c[13]}${v[9]}${c[14]}${v[10]}${c[15]} "
+        printf "${c[16]}${v[11]}${c[17]}${v[12]}${c[18]} "
+        printf "${c[19]}${v[13]}${c[20]}${v[14]}${c[21]} "
+        printf "${c[22]}${v[15]}${c[23]}${v[16]}${c[24]}\n"
+    }
 
-    for (( i=1; i<=${wordcount}; i++ )); do
-        local rand=$(( 0x$(xxd -ps -l 2 /dev/urandom) ))
-
-        until [[ $rand -ge $min ]]; do
-            rand=$(( 0x$(xxd -ps -l 2 /dev/urandom) ))
-        done
-
-        words+=(${wordlist[$(( ($rand % $length) + 1 ))]})
-    done
-
-    printf "Type, not copy/paste these ${wordcount} words in the event tester window.\n"
+    printf "Type, not copy/paste these 32 pseudowords in the event tester window.\n"
     printf "Move your mouse a bit in the event tester window afterward if desired.\n"
     printf "Close the event tester window when finished.\n"
     printf "\n"
 
+    print_line
+    print_line
+    print_line
+    print_line
+
     # Security comes from:
     #   key press precise timestamp
     #   key release precise timestamp
-    printf "$words\n" | fold -s
-
     # collect precise timestamps of keypresses and mouse movements
     entropy=$(strace --timestamps=precision:ns xev 2>&1)
     printf "\n"
 
-    # whiten collected data via compression
     # use b2sum(1) as a fixed-length entropy extractor
     printf %s "${entropy}" | b2sum | awk '{print $1}'
 }
