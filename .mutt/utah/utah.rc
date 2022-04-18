@@ -1,8 +1,0 @@
-unset imap_user imap_pass
-source "gpg2 --no-tty -qd ~/.mutt/utah/utah.gpg |"
-set record="+Sent Items"
-set spoolfile="+INBOX"
-set postponed="+Drafts"
-set realname="Aaron Toponce"
-set signature="~/src/dotfiles/.mutt/utah/signature.txt"
-# vim: set ft=muttrc:
