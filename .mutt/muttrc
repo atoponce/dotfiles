@@ -12,72 +12,71 @@ bind index,pager <F7> sidebar-page-up
 bind index,pager <F8> sidebar-page-down
 bind index,pager B sidebar-toggle-visible
 
-color body brightyellow default "^\\[-- .*Hashcash.*"
+#color body brightyellow default "^\\[-- .*Hashcash.*"
 
-folder-hook "gmail.com" "source ~/.mutt/gmail/gmail.rc"
-folder-hook "xmission.com" "source ~/.mutt/xmission/xmission.rc"
-folder-hook "utah.edu" "source ~/.mutt/utah/utah.rc"
+folder-hook "imap.gmail.com" "source ~/.mutt/gmail/gmail.rc"
+folder-hook "zimbra.xmission.com" "source ~/.mutt/xmission/xmission.rc"
 
 macro index Ag "<change-folder>imaps://imap.gmail.com<enter>"
 macro index Ax "<change-folder>imaps://zimbra.xmission.com<enter>"
-macro index Au "<change-folder>imaps://imap.umail.utah.edu<enter>"
 macro index M "T.\n;WN;^T.\n" "Mark all messages as read"
 
-my_hdr OpenPGP: id=22EEE0488086060F\; url=http://ae7.st/s/pgp\; preference=signencrypt
-
-send-hook . 'my_hdr Password-as-a-Service: `/bin/bash ~/src/scripts/random-password.sh`'
-send-hook '~t ^aaron\.toponce@ymail\.com$' 'set pgp_autoinline'
-
-set askbcc="yes"
-set askcc="yes"
+set askbcc
+set askcc
 set charset="utf-8"
 set certificate_file="~/.mutt/certs"
-set copy="yes"
-set display_filter="~/.mutt/verify_hashcash.py"
-set edit_headers="yes"
-set editor="~/.mutt/mint_hashcash.py"
-set envelope_from="yes"
+set copy
+#set display_filter="~/.mutt/verify_hashcash.py"
+set edit_headers
+#set editor="~/.mutt/mint_hashcash.py"
+set editor="/usr/bin/vim"
+set envelope_from
 set folder_format="%3C %3N  %f"
 set header_cache="~/.mutt/cache/headers"
 #set imap_keepalive="60"
-set imap_idle="yes"
-set imap_check_subscribed="yes"
-#set imap_list_subscribed="yes"
+set imap_idle
+set imap_check_subscribed
+#set imap_list_subscribed
 set index_format="%4C %Z %{%b %d} %-15.15F (%?l?%4l&%4c?) %s"
 set mail_check="600"
-set mail_check_stats=yes
+set mail_check_stats
 set message_cachedir="~/.mutt/cache/bodies"
-set message_cache_clean="yes"
-set move="no"
+set message_cache_clean
 set pager_index_lines="11"
-set query_command = "goobook query '%s'"
+#set query_command = "goobook query '%s'"
 set quote_regexp="^([ \t]*[|>:}])+"
-set reverse_alias="yes"
-set sidebar_folder_indent=yes
+set reverse_alias
+set sidebar_folder_indent
 set sidebar_format="%B%*  %S%?N?(%N)?%?F?[%F]?"
 set sidebar_indent_string=" "
-set sidebar_new_mail_only=yes
-set sidebar_short_path=yes
-set sidebar_visible=yes  
-set sidebar_width=30
-
+set sidebar_new_mail_only
+set sidebar_short_path
+set sidebar_visible
+set sidebar_width="30"
 set sort="threads"
 set sort_alias="alias"
 set sort_aux="last-date-received"
+#set ssl_force_tls
+set ssl_starttls
 set timeout="60"
 set use_from
+
+#unset imap_passive
+unset move
+unset use_ipv6
 
 ignore *
 unignore from date subject to cc user-agent hostname
 unignore organization organisation posted-to
 unignore x-mailer x-newsreader x-mailing-list
-unignore x-hashcash hashcash
+#unignore x-hashcash hashcash
 #unignore message-id in-reply-to references
-unignore openpgp
+#unignore openpgp
 unignore paas
 
-source ~/.mutt/gmail/gmail.rc
-source ~/.mutt/gnupg
+#source ~/.mutt/gmail/gmail.rc
+source ~/.mutt/xmission/xmission.rc
+#source ~/.mutt/gnupg
 #source ~/.mutt/identities
 #source ~/.mutt/themes/eightyeight-madcows.rc
 #source ~/.mutt/themes/calmar-256-dark.theme

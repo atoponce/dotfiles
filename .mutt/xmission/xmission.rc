@@ -1,4 +1,7 @@
-unset imap_user imap_pass
+unset imap_user imap_pass smtp_pass
+unset imap_authenticators smtp_authenticators
+unset imap_oauth_refresh_command smtp_oauth_refresh_command
+
 source "gpg2 --no-tty -qd ~/.mutt/xmission/xmission.gpg |"
 macro index S "<save-message>+Junk<enter>"   "mark message as spam"
 set imap_check_subscribed
@@ -6,6 +9,4 @@ set postponed="+Drafts"
 set realname="Aaron Toponce"
 set record="+Sent"
 set signature="~/src/dotfiles/.mutt/xmission/signature.txt"
-set ssl_starttls="yes"
-set ssl_force_tls="yes"
 # vim: set ft=muttrc:

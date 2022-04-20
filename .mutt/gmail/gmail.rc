@@ -1,4 +1,7 @@
-unset imap_user imap_pass
+unset imap_user imap_pass smtp_pass
+unset imap_authenticators smtp_authenticators
+unset imap_oauth_refresh_command smtp_oauth_refresh_command
+
 source "gpg2 --no-tty -qd ~/.mutt/gmail/gmail.gpg |"
 macro index S "<save-message>+[Gmail]/Spam<enter>"   "mark message as spam"
 set record="+[Gmail]/Sent Mail"
