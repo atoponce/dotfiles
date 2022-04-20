@@ -2,7 +2,8 @@ unset imap_user imap_pass smtp_pass
 unset imap_authenticators smtp_authenticators
 unset imap_oauth_refresh_command smtp_oauth_refresh_command
 
-source "gpg2 --no-tty -qd ~/.mutt/xmission/xmission.gpg |"
+#source "gpg2 --no-tty -qd ~/.mutt/xmission/xmission.gpg |"
+source "age -d -i ~/.config/age/private.key ~/.mutt/xmission/xmission.age | xz -cd |"
 macro index S "<save-message>+Junk<enter>"   "mark message as spam"
 set imap_check_subscribed
 set postponed="+Drafts"

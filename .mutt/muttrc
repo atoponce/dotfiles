@@ -74,8 +74,8 @@ unignore x-mailer x-newsreader x-mailing-list
 #unignore openpgp
 unignore paas
 
-#source ~/.mutt/gmail/gmail.rc
-source ~/.mutt/xmission/xmission.rc
+source ~/.mutt/gmail/gmail.rc
+#source ~/.mutt/xmission/xmission.rc
 #source ~/.mutt/gnupg
 #source ~/.mutt/identities
 #source ~/.mutt/themes/eightyeight-madcows.rc
