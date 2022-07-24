@@ -146,8 +146,8 @@ verify() {
 
 collect-entropy() {
     local print_line() {
-        local v=$(tr -cd aiou < /dev/urandom | head -c 16)
-        local c=$(tr -cd bdfghjklmnprstvz < /dev/urandom | head -c 24)
+        local c="$1"
+        local v="$2"
 
         printf "${c[1]}${v[1]}${c[2]}${v[2]}${c[3]} "
         printf "${c[4]}${v[3]}${c[5]}${v[4]}${c[6]} "
@@ -164,10 +164,13 @@ collect-entropy() {
     printf "Close the event tester window when finished.\n"
     printf "\n"
 
-    print_line
-    print_line
-    print_line
-    print_line
+    local vowels=$(tr -cd aiou < /dev/urandom | head -c 64)
+    local consonants=$(tr -cd bdfghjklmnprstvz < /dev/urandom | head -c 96)
+
+    print_line ${consonants[1,24]} ${vowels[1,16]}
+    print_line ${consonants[25,48]} ${vowels[17,32]}
+    print_line ${consonants[49,72]} ${vowels[33,48]}
+    print_line ${consonants[73,96]} ${vowels[49,64]}
 
     # Security comes from:
     #   key press precise timestamp
@@ -193,7 +196,7 @@ cleanimg() {
 expandurl() {
     # Improvement from https://gist.github.com/jlp78/f103beb941842ee1c59fa8b24640684a
     (torsocks wget --spider -O - -S $1 2>&1 |
-	awk '/^Location/ {gsub("\\?utm_.*$",""); print $2; exit 0} 
+	awk '/^Location/ {gsub("\\?utm_.*$",""); print $2; exit 0}
 	     /socks5 libc connect: Connection refused/ {exit 1}') ||
     (echo "warning, TOR not enabled" wget --spider -O - -S $1 2>&1 |
 	awk '/^Location/ {gsub("\\?utm_.*$",""); print $2; exit 0}')
@@ -321,7 +324,7 @@ precmd() {
         elif [[ $compass[$num] == "SE" ]]; then loc=9; (( walk[$loc]+=1 ))
         fi
     fi
-    
+
     # there are only 9 coin weights: .:-=+*#%@
     for cell in {1..9}; do
         [[ $walk[$cell] -gt 9 ]] && (( walk[$cell]=9 ))
