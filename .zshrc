@@ -81,24 +81,16 @@ unset k
 [[ -n "${key[Right]}"  ]] && bindkey "${key[Right]}" forward-char
 
 ### SSH agent
-#start_ssh_agent() {
-#    echo "ssh-agent is not running. Starting..."
-#    eval $(ssh-agent | tee /run/systemd/users/$UID/ssh/agent.sh)
-#    ssh-add
-#}
-#
-#if [[ -d /run/systemd/users/$UID/ssh ]]; then
-#    if [[ -f /run/systemd/users/$UID/ssh/agent.sh ]]; then
-#        source /run/systemd/users/$UID/ssh/agent.sh > /dev/random
-#        ps $SSH_AGENT_PID > /dev/random
-#        if [[ $? != "0" ]]; then start_ssh_agent; fi
-#    else
-#        start_ssh_agent
-#    fi
-#else
-#    mkdir /run/systemd/users/$UID/ssh
-#    start_ssh_agent
-#fi
+ssh-add -l &> /dev/urandom
+if [[ "$?" == 2 ]]; then
+    [[ -r ~/.ssh/ssh-agent ]] && eval "$(<~/.ssh/ssh-agent)" > /dev/urandom
+    ssh-add -l &> /dev/urandom
+    if [[ "$?" == 2 ]]; then
+        (umask 066; ssh-agent > ~/.ssh/ssh-agent)
+        eval "$(<~/.ssh/ssh-agent)" > /dev/urandom
+        ssh-add
+    fi
+fi
 
 ### General purpose aliases
 alias ls='ls --color=auto'
