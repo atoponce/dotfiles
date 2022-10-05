@@ -97,12 +97,22 @@ alias ls='ls --color=auto'
 
 ### General purpose functions
 genpass-csv() {
-    # Generates 95-bits base62 "comma-separated" password.
+    # Generates 128-bits base62 "comma-separated" password.
     #
     # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
     # > breached. Until next time!" ~ Skeletor
-    tr -cd 0-9A-Za-z < /dev/urandom | head -c 16 | sed -r 's/^(.{8})/\1,/g'
-    echo
+    local n
+    (( # == 0 )) && n=1 || n=$1 # test if an argument exists, or set to '1'
+
+    if ! [[ "$n" =~ '^[0-9]+$' ]]; then # test if argument is strictly numeric, or set to '1'
+        echo "usage: genpass-csv [NUM]"
+        return 1
+    fi
+
+    repeat $n; do
+        tr -cd 0-9A-Za-z < /dev/urandom | head -c 22 | sed -r 's/^(.{11})/\1,/g'
+        echo
+    done
 }
 encrypt() {
     local pubkey="$HOME/.config/age/public.key"
