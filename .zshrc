@@ -110,8 +110,7 @@ genpass-csv() {
     fi
 
     repeat $n; do
-        tr -cd 0-9A-Za-z < /dev/urandom | head -c 22 | sed -r 's/^(.{11})/\1,/g'
-        echo
+        tr -cd 0-9A-Za-z < /dev/urandom | head -c 22 | sed -r 's/^(.{11})/\1,/g;s/$/\n/'
     done
 }
 encrypt() {
