@@ -104,7 +104,7 @@ genpass-csv() {
     local n
     (( # == 0 )) && n=1 || n=$1 # test if an argument exists, or set to '1'
 
-    if ! [[ "$n" =~ '^[0-9]+$' ]]; then # test if argument is strictly numeric, or set to '1'
+    if ! [[ "$n" =~ '^[0-9]+$' ]]; then # test if argument is numeric, or return unsuccessfully
         echo "usage: genpass-csv [NUM]"
         return 1
     fi
