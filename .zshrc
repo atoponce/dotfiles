@@ -190,8 +190,14 @@ alphaimg() {
 }
 
 cleanimg() {
+    local type=$(identify -format %m)
     exiftool -q -all= -overwrite_original $1
-    optipng -quiet $1
+
+    if [[ "$type" == "JPEG" ]]; then
+        jpegoptim -q $1
+    elif [[ "$type" == "PNG" ]]; then
+        optipng -quiet $1
+    fi
 }
 
 expandurl() {
