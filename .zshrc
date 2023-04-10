@@ -191,7 +191,7 @@ alphaimg() {
 
 cleanimg() {
     local type=$(identify -format %m)
-    exiftool -q -all= -overwrite_original $1
+    exiftool -q -all= -overwrite_original $1 2> /dev/random
 
     if [[ "$type" == "JPEG" ]]; then
         jpegoptim -q $1
