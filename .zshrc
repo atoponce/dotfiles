@@ -146,6 +146,7 @@ verify() {
 }
 
 collect-entropy() {
+    # 256-bit keyboard entropy collector
     local print_line() {
         local c="$1"
         local v="$2"
@@ -160,18 +161,16 @@ collect-entropy() {
         printf "${c[22]}${v[15]}${c[23]}${v[16]}${c[24]}\n"
     }
 
-    printf "Type, not copy/paste these 32 pseudowords in the event tester window.\n"
+    printf "Type, not copy/paste these 16 pseudowords in the event tester window.\n"
     printf "Move your mouse a bit in the event tester window afterward if desired.\n"
     printf "Close the event tester window when finished.\n"
     printf "\n"
 
-    local vowels=$(tr -cd aiou < /dev/urandom | head -c 64)
-    local consonants=$(tr -cd bdfghjklmnprstvz < /dev/urandom | head -c 96)
+    local vowels=$(tr -cd aiou < /dev/urandom | head -c 32)
+    local consonants=$(tr -cd bdfghjklmnprstvz < /dev/urandom | head -c 48)
 
     print_line ${consonants[1,24]} ${vowels[1,16]}
     print_line ${consonants[25,48]} ${vowels[17,32]}
-    print_line ${consonants[49,72]} ${vowels[33,48]}
-    print_line ${consonants[73,96]} ${vowels[49,64]}
 
     # Security comes from:
     #   key press precise timestamp
@@ -180,8 +179,8 @@ collect-entropy() {
     entropy=$(strace --timestamps=precision:ns xev 2>&1)
     printf "\n"
 
-    # use b2sum(1) as a fixed-length entropy extractor
-    printf %s "${entropy}" | b2sum | awk '{print $1}'
+    # use b3sum(1) as a fixed-length entropy extractor
+    printf %s "${entropy}" | b3sum | awk '{print $1}'
 }
 
 alphaimg() {
