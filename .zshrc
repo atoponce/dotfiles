@@ -96,6 +96,108 @@ fi
 alias ls='ls --color=auto'
 
 ### General purpose functions
+srandom() {
+    # 32-bit cryptographically secure RNG
+    # Assumes ZSH is compiled with 64-bit integers
+    # See https://gist.github.com/romkatv/a6cede40714ec77d4da73605c5ddb36a as a math function.
+    zmodload zsh/system
+
+    local byte
+    local -i rnd=0
+
+    repeat 4; do
+        sysread -s 1 byte < /dev/urandom || return
+        rnd=$(( rnd << 8 | #byte ))
+    done
+
+    print -r -- $rnd
+}
+
+csprng() {
+    # Generates a cryptographically secure uniform random value between [0..$1)
+    local bound=${1:?"Must provide an upper bound"}
+    local min=$((2 ** 32 % bound))
+    local n=$(srandom)
+
+    # Uniform modulo with rejection
+    while (( n < min )); do
+        n=$(srandom)
+    done
+
+    print -r -- "$((n % bound))"
+}
+
+genpass-whitespace() {
+    # Generate a purely whitespace password with 128 bits of symmetric security.
+    #
+    # Characters are strictly non-control, non-graphical, horizontal spaces/blanks. Both nonzero-
+    # and zero-width characters are used. Two characters are technically vertical characters, but
+    # aren't interpreted as such in the shell. They are "\u2028" and "\u2029". You might need a font
+    # with good Unicode support to prevent some of these characters creating tofu.
+    local chars=(
+      # Non-zero width characters
+      $'\u0009' # Character tabulation
+      $'\u0020' # Space
+      $'\u00A0' # Non-breaking space
+      $'\u2000' # En quad
+      $'\u2001' # Em quad
+      $'\u2002' # En space
+      $'\u2003' # Em space
+      $'\u2004' # Three-per-em space
+      $'\u2005' # Four-per-em space
+      $'\u2006' # Six-per-em space
+      $'\u2007' # Figure space
+      $'\u2008' # Punctuation space
+      $'\u2009' # Thin space
+      $'\u200A' # Hair space
+      $'\u202F' # Narrow no-break space
+      $'\u205F' # Medium mathematical space
+      $'\u2800' # Braille pattern blank
+      $'\u2028' # Line separator
+      $'\u2029' # Paragraph separator
+      $'\u3000' # Ideographic space
+      $'\u3164' # Hangul filler
+      $'\uFFA0' # Halfwidth hangul filler
+      # Zero width characters
+      $'\u115F' # Hangul choseong filler
+      $'\u1160' # Hangul jungseong filler
+      $'\u180E' # Mongolian vowel separator
+      $'\u200B' # Zero width space
+      $'\u200C' # Zero width non-joiner
+      $'\u200D' # Zero width joiner
+      $'\u2060' # Word joiner
+      $'\uFEFF' # Zero width non-breaking space
+    )
+
+    local n
+    local bits=128
+    local length=$(( ceil($bits/log2(${#chars[@]})) ))
+
+    (( # == 0 )) && n=1 || n=$1 # test if an argument exists, or set to '1'
+
+    if ! [[ "$n" =~ '^[0-9]+$' ]]; then # test if argument is numeric, or return unsuccessfully
+        echo "usage: genpass-csv [NUM]"
+        return 1
+    fi
+
+    tabs -1 # Set tab width to 1 space
+
+    repeat $n; do
+        local selected=()
+
+        while (( ${#selected[@]} < $length )); do
+            local r=$(csprng ${#chars[@]})
+            selected+=("${chars[$r]}")
+        done
+
+        # Wrap the password in braille pattern blanks for correctly handling zero-width characters
+        # at the edges and to prevent whitespace stripping by the auth form.
+        printf '%s' $'"\u2800' "${selected[@]}" $'\u2800"\n'
+    done
+
+    tabs -0 # Restore default tab width
+}
+
 genpass-csv() {
     # Generates 128-bits base62 "comma-separated" password.
     #
@@ -211,20 +313,6 @@ expandurl() {
 shorturl() {
     wget -qO - 'http://ae7.st/s/yourls-api.php?signature=8e4f5d1d8d&action=shorturl&format=simple&url='"$1"
     echo
-}
-
-# 32-bit cryptographically secure RNG
-# Assumes ZSH is compiled with 64-bit integers
-# See https://gist.github.com/romkatv/a6cede40714ec77d4da73605c5ddb36a as a math function.
-srandom() {
-    zmodload zsh/system
-    local byte
-    local -i rnd=0
-    repeat 4; do
-        sysread -s 1 byte < /dev/urandom || return
-        rnd=$(( rnd << 8 | #byte ))
-    done
-    print -r -- $rnd
 }
 
 ### Prompt
