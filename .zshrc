@@ -176,7 +176,7 @@ genpass-whitespace() {
     (( # == 0 )) && n=1 || n=$1 # test if an argument exists, or set to '1'
 
     if ! [[ "$n" =~ '^[0-9]+$' ]]; then # test if argument is numeric, or return unsuccessfully
-        echo "usage: genpass-csv [NUM]"
+        echo "usage: genpass-whitespace [NUM]"
         return 1
     fi
 
@@ -212,7 +212,7 @@ genpass-csv() {
     fi
 
     repeat $n; do
-        tr -cd 0-9A-Za-z < /dev/urandom | head -c 22 | sed -r 's/^(.{11})/\1,/g;s/$/\n/'
+        tr -cd 2-9A-HJ-NP-Za-km-z < /dev/urandom | head -c 22 | sed -r 's/^(.{11})/\1,/g;s/$/\n/'
     done
 }
 encrypt() {
