@@ -100,15 +100,10 @@ srandom() {
     # 32-bit cryptographically secure RNG
     # Assumes ZSH is compiled with 64-bit integers
     # See https://gist.github.com/romkatv/a6cede40714ec77d4da73605c5ddb36a as a math function.
-    local byte
-    local -i rnd=0
-
-    repeat 4; do
-        sysread -s 1 byte < /dev/urandom || return
-        rnd=$(( rnd << 8 | #byte ))
-    done
-
-    print -r -- $rnd
+    local bytes
+    sysread -s 4 bytes < /dev/urandom || return
+    local b1=$bytes[1] b2=$bytes[2] b3=$bytes[3] b4=$bytes[4]
+    print -r -- $((#b1 << 24 | #b2 << 16 | #b3 << 8 | #b4))
 }
 
 csprng() {
@@ -118,7 +113,7 @@ csprng() {
     local n=$(srandom)
 
     # Uniform modulo with rejection
-    while (( n < min )); do
+    while [[ $n -lt $min ]]; do
         n=$(srandom)
     done
 
@@ -182,9 +177,7 @@ genpass-whitespace() {
     repeat ${1-1}; do
         local selected=""
 
-        repeat $length; do
-            selected+="$chars[$(csprng $size)]"
-        done
+        repeat $length; do selected+="$chars[$(csprng $size)]"; done
 
         # Wrap the password in braille pattern blanks for correctly handling zero-width characters
         # at the edges and to prevent whitespace stripping by the auth form.
