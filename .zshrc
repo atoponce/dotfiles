@@ -100,8 +100,6 @@ srandom() {
     # 32-bit cryptographically secure RNG
     # Assumes ZSH is compiled with 64-bit integers
     # See https://gist.github.com/romkatv/a6cede40714ec77d4da73605c5ddb36a as a math function.
-    zmodload zsh/system
-
     local byte
     local -i rnd=0
 
@@ -169,30 +167,28 @@ genpass-whitespace() {
       $'\uFEFF' # Zero width non-breaking space
     )
 
-    local n
     local bits=128
-    local length=$(( ceil($bits/log2(${#chars[@]})) ))
+    local size=$#chars
+    local length=$(( ceil($bits/log2($size)) ))
 
-    (( # == 0 )) && n=1 || n=$1 # test if an argument exists, or set to '1'
-
-    if ! [[ "$n" =~ '^[0-9]+$' ]]; then # test if argument is numeric, or return unsuccessfully
-        echo "usage: genpass-whitespace [NUM]"
+    # Test if argument is numeric, or return unsuccessfully
+    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+        print -ru2 -- "usage: $0 [NUM]"
         return 1
     fi
 
     tabs -1 # Set tab width to 1 space
 
-    repeat $n; do
-        local selected=()
+    repeat ${1-1}; do
+        local selected=""
 
-        while (( ${#selected[@]} < $length )); do
-            local r=$(csprng ${#chars[@]})
-            selected+=("${chars[$r]}")
+        repeat $length; do
+            selected+="$chars[$(csprng $size)]"
         done
 
         # Wrap the password in braille pattern blanks for correctly handling zero-width characters
         # at the edges and to prevent whitespace stripping by the auth form.
-        printf '%s' $'"\u2800' "${selected[@]}" $'\u2800"\n'
+        print -r $'"\u2800'$selected$'\u2800"'
     done
 
     tabs -0 # Restore default tab width
@@ -203,15 +199,14 @@ genpass-csv() {
     #
     # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
     # > breached. Until next time!" ~ Skeletor
-    local n
-    (( # == 0 )) && n=1 || n=$1 # test if an argument exists, or set to '1'
 
-    if ! [[ "$n" =~ '^[0-9]+$' ]]; then # test if argument is numeric, or return unsuccessfully
-        echo "usage: genpass-csv [NUM]"
+    # Test if argument is numeric, or return unsuccessfully
+    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+        print -ru2 -- "usage: $0 [NUM]"
         return 1
     fi
 
-    repeat $n; do
+    repeat ${1-1}; do
         tr -cd 2-9A-HJ-NP-Za-km-z < /dev/urandom | head -c 22 | sed -r 's/^(.{11})/\1,/g;s/$/\n/'
     done
 }
