@@ -138,8 +138,9 @@ genpass-whitespace() {
         return 1
     fi
 
+    tabs -1 # set tab width to 1 space
+
     {
-        tabs -1 # set tab width to 1 space
 
         local chars=(
           $'\u0009' $'\u0020' $'\u00A0' $'\u115F' $'\u1160' $'\u180E' $'\u2000' $'\u2001' $'\u2002'
@@ -168,8 +169,9 @@ genpass-whitespace() {
           print -r $'\u2800"'
         done
 
-        tabs -8 # restore tab width
     } < /dev/urandom
+
+    tabs -8 # restore tab width
 }
 
 genpass-csv() {
@@ -236,16 +238,18 @@ collect-entropy() {
         printf "${c[22]}${v[15]}${c[23]}${v[16]}${c[24]}\n"
     }
 
-    printf "Type, not copy/paste these 16 pseudowords in the event tester window.\n"
+    printf "Type, not copy/paste these 32 pseudowords in the event tester window.\n"
     printf "Move your mouse a bit in the event tester window afterward if desired.\n"
     printf "Close the event tester window when finished.\n"
     printf "\n"
 
-    local vowels=$(tr -cd aiou < /dev/urandom | head -c 32)
-    local consonants=$(tr -cd bdfghjklmnprstvz < /dev/urandom | head -c 48)
+    local vowels=$(tr -cd aiou < /dev/urandom | head -c 64)
+    local consonants=$(tr -cd bdfghjklmnprstvz < /dev/urandom | head -c 96)
 
     print_line ${consonants[1,24]} ${vowels[1,16]}
     print_line ${consonants[25,48]} ${vowels[17,32]}
+    print_line ${consonants[49,72]} ${vowels[33,48]}
+    print_line ${consonants[73,96]} ${vowels[49,64]}
 
     # Security comes from:
     #   key press precise timestamp
@@ -255,7 +259,7 @@ collect-entropy() {
     printf "\n"
 
     # use b3sum(1) as a fixed-length entropy extractor
-    printf %s "${entropy}" | b3sum | awk '{print $1}'
+    printf %s "${entropy}" | b3sum -l 64 | awk '{print $1}'
 }
 
 alphaimg() {
