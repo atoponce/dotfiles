@@ -141,34 +141,28 @@ genpass-whitespace() {
     tabs -1 # set tab width to 1 space
 
     {
-
         local chars=(
-          $'\u0009' $'\u0020' $'\u00A0' $'\u115F' $'\u1160' $'\u180E' $'\u2000' $'\u2001' $'\u2002'
-          $'\u2003' $'\u2004' $'\u2005' $'\u2006' $'\u2007' $'\u2008' $'\u2009' $'\u200A' $'\u200B'
-          $'\u200C' $'\u200D' $'\u2028' $'\u2029' $'\u202F' $'\u205F' $'\u2060' $'\u2800' $'\u3000'
-          $'\u3164' $'\uFEFF' $'\uFFA0'
+            $'\u0009' $'\u0020' $'\u00A0' $'\u115F' $'\u1160' $'\u180E' $'\u2000' $'\u2001'
+            $'\u2002' $'\u2003' $'\u2004' $'\u2005' $'\u2006' $'\u2007' $'\u2008' $'\u2009'
+            $'\u200A' $'\u200B' $'\u200C' $'\u200D' $'\u2028' $'\u2029' $'\u202F' $'\u205F'
+            $'\u2060' $'\u2800' $'\u3000' $'\u3164' $'\uFEFF' $'\uFFA0'
         )
         local c
         local min=$((2**32 % $#chars))
         local length=$(( ceil(128/log2($#chars)) ))
 
         repeat ${1-1}; do
-          print -rn -- $'"\u2800'
-
-          repeat $length; do
-            sysread -s1 c || return
-
-            # Uniform sampling with modulo rejection
-            while (( #c < $min )); do
-              sysread -s1 c || return
+            print -rn -- $'"\u2800'
+            repeat $length; do
+                sysread -s1 c || return
+                # Uniform sampling with modulo rejection
+                while (( #c < $min )); do
+                    sysread -s1 c || return
+                done
+                print -rn -- $chars[#c%$#chars+1]
             done
-
-            print -rn -- $chars[#c%$#chars+1]
-          done
-
-          print -r $'\u2800"'
+            print -r $'\u2800"'
         done
-
     } < /dev/urandom
 
     tabs -8 # restore tab width
@@ -186,9 +180,29 @@ genpass-csv() {
         return 1
     fi
 
-    repeat ${1-1}; do
-        tr -cd 2-9A-HJ-NP-Za-km-z < /dev/urandom | head -c 22 | sed -r 's/^(.{11})/\1,/g;s/$/\n/'
-    done
+    {
+
+        local c
+        local chars="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" # Base 58
+        local min=$((2**32 % $#chars))
+        local length=$(( ceil(128/log2($#chars)) ))
+
+        repeat ${1-1}; do
+            local pw=""
+            repeat $length; do
+                sysread -s1 c || return
+
+                # Uniform sampling with modulo rejection
+                while (( #c < $min )); do
+                    sysread -s1 c || return
+                done
+
+                pw+=$chars[#c%$#chars+1]
+            done
+            print -r -- "$pw[1,11],$pw[12,22]"
+        done
+
+    } < /dev/urandom
 }
 encrypt() {
     local pubkey="$HOME/.config/age/public.key"
