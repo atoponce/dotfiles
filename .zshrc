@@ -157,6 +157,7 @@ genpass-whitespace() {
           repeat $length; do
             sysread -s1 c || return
 
+            # Uniform sampling with modulo rejection
             while (( #c < $min )); do
               sysread -s1 c || return
             done
