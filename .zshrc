@@ -127,6 +127,10 @@ genpass-whitespace() {
     # and zero-width characters are used. Two characters are technically vertical characters, but
     # aren't interpreted as such in the shell. They are "\u2028" and "\u2029". You might need a font
     # with good Unicode support to prevent some of these characters creating tofu.
+    #
+    # The password is wrapped in braille pattern blanks for correctly handling zero-width characters
+    # at the edges, to prevent whitespace stripping by the auth form, and to guarantee a copy-able
+    # width should only zero-width characters be generated.
 
     # Test if argument is numeric, or return unsuccessfully
     if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
@@ -137,27 +141,27 @@ genpass-whitespace() {
     {
         tabs -1 # set tab width to 1 space
 
-        local c
         local chars=(
           $'\u0009' $'\u0020' $'\u00A0' $'\u115F' $'\u1160' $'\u180E' $'\u2000' $'\u2001' $'\u2002'
           $'\u2003' $'\u2004' $'\u2005' $'\u2006' $'\u2007' $'\u2008' $'\u2009' $'\u200A' $'\u200B'
           $'\u200C' $'\u200D' $'\u2028' $'\u2029' $'\u202F' $'\u205F' $'\u2060' $'\u2800' $'\u3000'
           $'\u3164' $'\uFEFF' $'\uFFA0'
         )
+        local c
+        local min=$((2**32 % $#chars))
+        local length=$(( ceil(128/log2($#chars)) ))
 
         repeat ${1-1}; do
-          # Wrap the password in braille pattern blanks for correctly handling zero-width characters
-          # at the edges and to prevent whitespace stripping by the auth form.
           print -rn -- $'"\u2800'
 
-          repeat 27; do
+          repeat $length; do
             sysread -s1 c || return
 
-            while (( #c < 16 )); do # 2 ** 32 % 30 = 16
+            while (( #c < $min )); do
               sysread -s1 c || return
             done
 
-            print -rn -- $chars[#c%30+1]
+            print -rn -- $chars[#c%$#chars+1]
           done
 
           print -r $'\u2800"'
