@@ -164,7 +164,7 @@ genpass-whitespace() {
 }
 
 genpass-csv() {
-    # Generates 128-bits base62 "comma-separated" password.
+    # Generates 128-bits base64 "comma-separated" password.
     #
     # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
     # > breached. Until next time!" ~ Skeletor
