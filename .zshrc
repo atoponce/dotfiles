@@ -187,7 +187,7 @@ genpass-csv() {
                 sysread -s1 c || return
                 pw+=$chars[#c%$#chars+1] # Uniform as $#chars divides 256 evenly.
             done
-            print -r -- "$pw[1,$(($length/2))],$pw[$(($length/2+1)),$length]"
+            print -r -- "$pw[1,$#pw/2],$pw[$#pw/2+1,$#pw]"
         done
 
     } < /dev/urandom
