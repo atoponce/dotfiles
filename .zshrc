@@ -148,7 +148,6 @@ genpass-whitespace() {
             $'\u202F' $'\u205F' $'\u2060' $'\u2800' $'\u3000' $'\u3164' $'\uFEFF' $'\uFFA0'
         )
         local c
-        local min=$((2**32 % $#chars))
         local length=$(( ceil(128/log2($#chars)) ))
 
         repeat ${1-1}; do
