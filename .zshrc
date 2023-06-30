@@ -142,10 +142,10 @@ genpass-whitespace() {
 
     {
         local chars=(
-            $'\u0009' $'\u0020' $'\u00A0' $'\u115F' $'\u1160' $'\u180E' $'\u2000' $'\u2001'
-            $'\u2002' $'\u2003' $'\u2004' $'\u2005' $'\u2006' $'\u2007' $'\u2008' $'\u2009'
-            $'\u200A' $'\u200B' $'\u200C' $'\u200D' $'\u2028' $'\u2029' $'\u202F' $'\u205F'
-            $'\u2060' $'\u2800' $'\u3000' $'\u3164' $'\uFEFF' $'\uFFA0'
+            $'\u0009' $'\u0020' $'\u00A0' $'\u00AD' $'\u034F' $'\u115F' $'\u1160' $'\u180E'
+            $'\u2000' $'\u2001' $'\u2002' $'\u2003' $'\u2004' $'\u2005' $'\u2006' $'\u2007'
+            $'\u2008' $'\u2009' $'\u200A' $'\u200B' $'\u200C' $'\u200D' $'\u2028' $'\u2029'
+            $'\u202F' $'\u205F' $'\u2060' $'\u2800' $'\u3000' $'\u3164' $'\uFEFF' $'\uFFA0'
         )
         local c
         local min=$((2**32 % $#chars))
@@ -155,11 +155,7 @@ genpass-whitespace() {
             print -rn -- $'"\u2800'
             repeat $length; do
                 sysread -s1 c || return
-                # Uniform sampling with modulo rejection
-                while (( #c < $min )); do
-                    sysread -s1 c || return
-                done
-                print -rn -- $chars[#c%$#chars+1]
+                print -rn -- $chars[#c%$#chars+1] # Uniform as $#chars divides 256 evenly.
             done
             print -r $'\u2800"'
         done
@@ -183,23 +179,16 @@ genpass-csv() {
     {
 
         local c
-        local chars="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz" # Base 58
-        local min=$((2**32 % $#chars))
+        local chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" # Base 64
         local length=$(( ceil(128/log2($#chars)) ))
 
         repeat ${1-1}; do
             local pw=""
             repeat $length; do
                 sysread -s1 c || return
-
-                # Uniform sampling with modulo rejection
-                while (( #c < $min )); do
-                    sysread -s1 c || return
-                done
-
-                pw+=$chars[#c%$#chars+1]
+                pw+=$chars[#c%$#chars+1] # Uniform as $#chars divides 256 evenly.
             done
-            print -r -- "$pw[1,11],$pw[12,22]"
+            print -r -- "$pw[1,$(($length/2))],$pw[$(($length/2+1)),$length]"
         done
 
     } < /dev/urandom
