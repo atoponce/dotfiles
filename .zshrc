@@ -1,5 +1,6 @@
 DISABLE_AUTO_UPDATE="true"
 ZSH_DISABLE_COMPFIX="true"
+DISABLE_MAGIC_FUNCTIONS="true"
 export ZSH="$HOME/src/ohmyzsh" # Production
 #export ZSH="$HOME/src/atoponce-ohmyzsh" # Development fork
 plugins=(genpass)
@@ -132,22 +133,26 @@ genpass-whitespace() {
     # at the edges, to prevent whitespace stripping by the auth form, and to guarantee a copy-able
     # width should only zero-width characters be generated.
 
+    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+
     # Test if argument is numeric, or return unsuccessfully
     if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
         print -ru2 -- "usage: $0 [NUM]"
         return 1
     fi
 
+    zmodload zsh/system zsh/mathfunc || return
+
     tabs -1 # set tab width to 1 space
 
     {
+        local c
         local chars=(
             $'\u0009' $'\u0020' $'\u00A0' $'\u00AD' $'\u034F' $'\u115F' $'\u1160' $'\u180E'
             $'\u2000' $'\u2001' $'\u2002' $'\u2003' $'\u2004' $'\u2005' $'\u2006' $'\u2007'
             $'\u2008' $'\u2009' $'\u200A' $'\u200B' $'\u200C' $'\u200D' $'\u2028' $'\u2029'
             $'\u202F' $'\u205F' $'\u2060' $'\u2800' $'\u3000' $'\u3164' $'\uFEFF' $'\uFFA0'
         )
-        local c
         local length=$(( ceil(128/log2($#chars)) ))
 
         repeat ${1-1}; do
@@ -169,14 +174,17 @@ genpass-csv() {
     # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
     # > breached. Until next time!" ~ Skeletor
 
+    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+
     # Test if argument is numeric, or return unsuccessfully
     if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
         print -ru2 -- "usage: $0 [NUM]"
         return 1
     fi
 
-    {
+    zmodload zsh/system zsh/mathfunc || return
 
+    {
         local c
         local chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" # Base 64
         local length=$(( ceil(128/log2($#chars)) ))
