@@ -132,7 +132,7 @@ trng() {
         local stop=$((EPOCHREALTIME+0.001)) # 1ms into the future
 
         while (( $EPOCHREALTIME < $stop )); do
-            coin=$((coin^1)) # flip coin as fast as possible
+            ((coin^=1)) # flip coin as fast as possible
         done
 
         flips+=($coin)
