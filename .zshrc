@@ -156,14 +156,22 @@ genpass-whitespace() {
         local length=$(( ceil(128/log2($#chars)) ))
 
         repeat ${1-1}; do
+            local warn=false
+
             print -rn -- $'"\u2800'
             repeat $length; do
                 sysread -s1 c || return
-                print -rn -- $chars[#c%$#chars+1] # Uniform as $#chars divides 256 evenly.
+                local x=$chars[#c%$#chars+1]
+
+                [[ $x == ($'\u2028'|$'\u2029') ]] && warn=true
+
+                print -rn -- $x # Uniform as $#chars divides 256 evenly.
             done
-            print -r $'\u2800"'
+
+            [[ $warn == true ]] && print -rP $'\u2800" %F{red}●%F{reset}' || print -rP $'\u2800" %F{green}●%F{reset}'
         done
     } < /dev/urandom
+
 
     tabs -8 # restore tab width
 }
@@ -195,7 +203,7 @@ genpass-csv() {
                 sysread -s1 c || return
                 pw+=$chars[#c%$#chars+1] # Uniform as $#chars divides 256 evenly.
             done
-            print -r -- "$pw[1,$#pw/2],$pw[$#pw/2+1,$#pw]"
+            print -r -- "\"$pw[1,$#pw/2]\",\"$pw[$#pw/2+1,$#pw]\""
         done
 
     } < /dev/urandom
