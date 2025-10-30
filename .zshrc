@@ -138,7 +138,7 @@ trng() {
         flips+=($coin)
     done
 
-    h=($(print -r -- ${(j[])flips} | b2sum -l 256)) # whiten the data
+    local h=($(print -r -- ${(j[])flips} | b2sum -l 256)) # whiten the data
     print -r -- "$h[1]"
 }
 
