@@ -345,18 +345,24 @@ genpass-whitespace() {
 
         repeat ${1-1}; do
             local warn=false
+            local pass=""
 
-            print -rn -- $'"\u2800'
+            pass+=$'"\u2800'
+
             repeat $length; do
                 sysread -s1 c || return
                 local x=$chars[#c%$#chars+1]
 
                 [[ $x == ($'\u2028'|$'\u2029') ]] && warn=true
 
-                print -rn -- $x # Uniform as $#chars divides 256 evenly.
+                pass+="$x"
             done
 
-            [[ $warn == true ]] && print -rP $'\u2800" %F{red}●%F{reset}' || print -rP $'\u2800" %F{green}●%F{reset}'
+            pass+=$'\u2800"'
+
+            [[ $warn == true ]] \
+                && print -rP '%F{yellow}●%F{reset} $pass' \
+                || print -rP '%F{green}●%F{reset} $pass'
         done
     } < /dev/urandom
 
