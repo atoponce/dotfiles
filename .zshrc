@@ -302,7 +302,7 @@ genpass-monkey() {
 }
 
 genpass-whitespace() {
-    # Usage: genpass-xkcd [NUM]
+    # Usage: genpass-whitespace [NUM]
     #
     # Generate a password made of 32 non-control, non-graphical, horizontal spaces/blanks with a
     # security margin of at least 128 bits.
