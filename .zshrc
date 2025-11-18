@@ -509,8 +509,8 @@ collect-entropy() {
     entropy=$(strace --timestamps=precision:ns xev 2>&1)
     printf "\n"
 
-    # use b3sum(1) as a fixed-length entropy extractor
-    printf %s "${entropy}" | b3sum -l 64 | awk '{print $1}'
+    # use b2sum(1) as a fixed-length entropy extractor
+    printf %s "${entropy}" | b2sum | awk '{print $1}'
 }
 
 alphaimg() {
@@ -557,7 +557,7 @@ precmd() {
         2 '%F{093}：%f'
         3 '%F{039}－%f'
         4 '%F{051}＝%f'
-        5 '%F{047}＋%f'
+        5 '%F{045}＋%f'
         6 '%F{190}＊%f'
         7 '%F{220}＃%f'
         8 '%F{208}％%f'
