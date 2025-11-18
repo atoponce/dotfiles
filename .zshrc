@@ -2,10 +2,10 @@ CASE_SENSITIVE="true"
 DISABLE_AUTO_UPDATE="true"
 ZSH_DISABLE_COMPFIX="true"
 DISABLE_MAGIC_FUNCTIONS="true"
-export ZSH="$HOME/src/ohmyzsh" # Production
+#export ZSH="$HOME/src/ohmyzsh" # Production
 #export ZSH="$HOME/src/atoponce-ohmyzsh" # Development fork
-plugins=(genpass)
-source $ZSH/oh-my-zsh.sh
+#plugins=(genpass)
+#source $ZSH/oh-my-zsh.sh
 source $HOME/.cargo/env
 
 # Make sure umask is set appropriately, login or not
@@ -142,17 +142,184 @@ trng() {
     print -r -- "$h[1]"
 }
 
-genpass-whitespace() {
-    # Generate a purely whitespace password with 128 bits of symmetric security.
+genpass-apple() {
+    # Usage: genpass-apple [NUM]
     #
-    # Characters are strictly non-control, non-graphical, horizontal spaces/blanks. Both nonzero-
-    # and zero-width characters are used. Two characters are technically vertical characters, but
-    # aren't interpreted as such in the shell. They are "\u2028" and "\u2029". You might need a font
-    # with good Unicode support to prevent some of these characters creating tofu.
+    # Generate a password made of 6 pseudowords of 6 characters each with the security margin of at
+    # least 128 bits.
+    #
+    # Example password: xudmec-4ambyj-tavric-mumpub-mydVop-bypjyp
+    #
+    # If given a numerical argument, generate that many passwords.
+    #
+    # Initially developed by me for ohmyzsh.
+
+    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+
+    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+      print -ru2 -- "usage: $0 [NUM]"
+      return 1
+    fi
+
+    zmodload zsh/system zsh/mathfunc || return
+
+    {
+      local -r vowels=aeiouy
+      local -r consonants=bcdfghjklmnpqrstvwxz
+      local -r digits=0123456789
+
+      # Sets REPLY to a uniformly distributed random number in [1, $1].
+      # Requires: $1 <= 256.
+      function -$0-rand() {
+        local c
+        while true; do
+          sysread -s1 c || return
+          # Avoid bias towards smaller numbers.
+          (( #c < 256 / $1 * $1 )) && break
+        done
+        typeset -g REPLY=$((#c % $1 + 1))
+      }
+
+      local REPLY chars
+
+      repeat ${1-1}; do
+        # Generate 6 pseudowords of the form cvccvc where c and v
+        # denote random consonants and vowels respectively.
+        local words=()
+        repeat 6; do
+          words+=('')
+          repeat 2; do
+            for chars in $consonants $vowels $consonants; do
+              -$0-rand $#chars || return
+              words[-1]+=$chars[REPLY]
+            done
+          done
+        done
+
+        local pwd=${(j:-:)words}
+
+        # Replace either the first or the last character in one of
+        # the words with a random digit.
+        -$0-rand $#digits || return
+        local digit=$digits[REPLY]
+        -$0-rand $((2 * $#words)) || return
+        pwd[REPLY/2*7+2*(REPLY%2)-1]=$digit
+
+        # Convert one lower-case character to upper case.
+        while true; do
+          -$0-rand $#pwd || return
+          [[ $vowels$consonants == *$pwd[REPLY]* ]] && break
+        done
+        # NOTE: We aren't using ${(U)c} here because its results are
+        # locale-dependent. For example, when upper-casing 'i' in Turkish
+        # locale we would get 'İ', a.k.a. latin capital letter i with dot
+        # above. We could set LC_CTYPE=C locally but then we would run afoul
+        # of this zsh bug: https://www.zsh.org/mla/workers/2020/msg00588.html.
+        local c=$pwd[REPLY]
+        printf -v c '%o' $((#c - 32))
+        printf "%s\\$c%s\\n" "$pwd[1,REPLY-1]" "$pwd[REPLY+1,-1]" || return
+      done
+    } always {
+      unfunction -m -- "-${(b)0}-*"
+    } </dev/urandom
+}
+
+genpass-csv() {
+    # Usage: genpass-apple [NUM]
+    #
+    # Generate a password made of two 11-character alphanumeric strings, quotedo, and comma
+    # separated with a security margin of at least 128 bits.
+    #
+    # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
+    # > breached. Until next time!" ~ Skeletor
+    #
+    # Example password: "9Q8v6p3aCUm","qXYtKI8oKtc"
+    #
+    # If given a numerical argument, generate that many passwords.
+    #
+    # Initially developed by me for ohmyzsh.
+
+    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+
+    # Test if argument is numeric, or return unsuccessfully
+    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+        print -ru2 -- "usage: $0 [NUM]"
+        return 1
+    fi
+
+    zmodload zsh/system zsh/mathfunc || return
+
+    {
+        local c
+        local chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" # Base 64
+        local length=$(( ceil(128/log2($#chars)) ))
+
+        repeat ${1-1}; do
+            local pw=""
+            repeat $length; do
+                sysread -s1 c || return
+                pw+=$chars[#c%$#chars+1] # Uniform as $#chars divides 256 evenly.
+            done
+            print -r -- "\"$pw[1,$#pw/2]\",\"$pw[$#pw/2+1,$#pw]\""
+        done
+
+    } < /dev/urandom
+}
+
+genpass-monkey() {
+    # Usage: genpass-monkey [NUM]
+    #
+    # Generate a password made of 26 alphanumeric characters with the security margin of at least
+    # 128 bits.
+    #
+    # Example password: nz5ej2kypkvcw0rn5cvhs6qxtm
+    #
+    # If given a numerical argument, generate that many passwords.
+    #
+    # Initially developed by me for ohmyzsh.
+
+    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+
+    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+      print -ru2 -- "usage: $0 [NUM]"
+      return 1
+    fi
+
+    zmodload zsh/system || return
+
+    {
+      local -r chars=abcdefghjkmnpqrstvwxyz0123456789
+      local c
+      repeat ${1-1}; do
+        repeat 26; do
+          sysread -s1 c || return
+          # There is uniform because $#chars divides 256.
+          print -rn -- $chars[#c%$#chars+1]
+        done
+        print
+      done
+    } </dev/urandom
+}
+
+genpass-whitespace() {
+    # Usage: genpass-xkcd [NUM]
+    #
+    # Generate a password made of 32 non-control, non-graphical, horizontal spaces/blanks with a
+    # security margin of at least 128 bits.
+    #
+    # Both nonzero- and zero-width characters are used. Two characters are technically vertical
+    # characters, but aren't interpreted as such in the shell. They are "\u2028" and "\u2029". You
+    # might need a font with good Unicode support to prevent some of these characters creating tofu.
     #
     # The password is wrapped in braille pattern blanks for correctly handling zero-width characters
     # at the edges, to prevent whitespace stripping by the auth form, and to guarantee a copy-able
     # width should only zero-width characters be generated.
+    #
+    # Example password: ● "⠀　    ‍ ​   ‍ 　   ͏͏ᅟ  ⠀ ⁠‌⠀"
+    #
+    # If given a numerical argument, generate that many passwords.
+    #
+    # Initially developed by me for ohmyzsh.
 
     emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
 
@@ -197,38 +364,77 @@ genpass-whitespace() {
     tabs -8 # restore tab width
 }
 
-genpass-csv() {
-    # Generates 128-bits base64 "comma-separated" password.
+genpass-xkcd() {
+    # Usage: genpass-xkcd [NUM]
     #
-    # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
-    # > breached. Until next time!" ~ Skeletor
+    # Generate a password made of words from /usr/share/dict/words with the security margin of at
+    # least 128 bits.
+    #
+    # Example password: 9-mien-flood-Patti-buxom-dozes-ickier-pay-ailed-Foster
+    #
+    # If given a numerical argument, generate that many passwords.
+    #
+    # The name of this utility is a reference to https://xkcd.com/936/.
+    #
+    # Initially developed by me for ohmyzsh.
 
-    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var -o extended_glob
 
-    # Test if argument is numeric, or return unsuccessfully
     if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
-        print -ru2 -- "usage: $0 [NUM]"
-        return 1
+      print -ru2 -- "usage: $0 [NUM]"
+      return 1
     fi
 
     zmodload zsh/system zsh/mathfunc || return
 
+    local -r dict=/usr/share/dict/words
+
+    if [[ ! -e $dict ]]; then
+      print -ru2 -- "$0: file not found: $dict"
+      return 1
+    fi
+
+    # Read all dictionary words and leave only those made of 1-6 characters.
+    local -a words
+    words=(${(M)${(f)"$(<$dict)"}:#[a-zA-Z](#c1,6)}) || return
+
+    if (( $#words < 2 )); then
+      print -ru2 -- "$0: not enough suitable words in $dict"
+      return 1
+    fi
+
+    if (( $#words > 16#7FFFFFFF )); then
+      print -ru2 -- "$0: too many words in $dict"
+      return 1
+    fi
+
+    # Figure out how many words we need for 128 bits of security margin.
+    # Each word adds log2($#words) bits.
+    local -i n=$((ceil(128. / (log($#words) / log(2)))))
+
     {
-        local c
-        local chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" # Base 64
-        local length=$(( ceil(128/log2($#chars)) ))
-
-        repeat ${1-1}; do
-            local pw=""
-            repeat $length; do
-                sysread -s1 c || return
-                pw+=$chars[#c%$#chars+1] # Uniform as $#chars divides 256 evenly.
+      local c
+      repeat ${1-1}; do
+        print -rn -- $n
+        repeat $n; do
+          while true; do
+            # Generate a random number in [0, 2**31).
+            local -i rnd=0
+            repeat 4; do
+              sysread -s1 c || return
+              (( rnd = (~(1 << 23) & rnd) << 8 | #c ))
             done
-            print -r -- "\"$pw[1,$#pw/2]\",\"$pw[$#pw/2+1,$#pw]\""
+            # Avoid bias towards words in the beginning of the list.
+            (( rnd < 16#7FFFFFFF / $#words * $#words )) || continue
+            print -rn -- -$words[rnd%$#words+1]
+            break
+          done
         done
-
-    } < /dev/urandom
+        print
+      done
+    } </dev/urandom
 }
+
 encrypt() {
     local pubkey="$HOME/.config/age/public.key"
 
