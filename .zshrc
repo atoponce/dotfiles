@@ -553,9 +553,9 @@ precmd() {
     # coin weight. not ASCII, but full-width unicode
     typeset -A coins=(
         0 '　'
-        1 '%F{021}，%f'
+        1 '%F{027}，%f'
         2 '%F{093}：%f'
-        3 '%F{033}－%f'
+        3 '%F{039}－%f'
         4 '%F{051}＝%f'
         5 '%F{047}＋%f'
         6 '%F{190}＊%f'
