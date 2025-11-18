@@ -432,7 +432,7 @@ genpass-xkcd() {
             done
             # Avoid bias towards words in the beginning of the list.
             (( rnd < 16#7FFFFFFF / $#words * $#words )) || continue
-            print -rn -- -$words[rnd%$#words+1]
+            print -rn -- ' '$words[rnd%$#words+1]
             break
           done
         done
