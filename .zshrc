@@ -2,10 +2,7 @@ CASE_SENSITIVE="true"
 DISABLE_AUTO_UPDATE="true"
 ZSH_DISABLE_COMPFIX="true"
 DISABLE_MAGIC_FUNCTIONS="true"
-#export ZSH="$HOME/src/ohmyzsh" # Production
-#export ZSH="$HOME/src/atoponce-ohmyzsh" # Development fork
-#plugins=(genpass)
-#source $ZSH/oh-my-zsh.sh
+
 source $HOME/.cargo/env
 
 # Make sure umask is set appropriately, login or not
@@ -266,6 +263,29 @@ genpass-csv() {
     } < /dev/urandom
 }
 
+genpass-graph() {
+  # Usage: genpass-graph [NUM]
+  #
+  # Generate a password made from all graphical ASCII characters with a security margin of at least
+  # 128 bits.
+  #
+  # Example password: xEmK>78(@O<M;}vSeQ(U
+  #
+  # If given a numerical argument, generate that many passwords.
+
+  emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+
+  # Test if argument is numeric, or return unsuccessfully
+  if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+      print -ru2 -- "usage: $0 [NUM]"
+      return 1
+  fi
+
+  repeat ${1-1}; do
+    < /dev/urandom tr -cd '[:graph:]' | head -c 20; echo
+  done
+}
+
 genpass-monkey() {
     # Usage: genpass-monkey [NUM]
     #
@@ -315,7 +335,7 @@ genpass-whitespace() {
     # at the edges, to prevent whitespace stripping by the auth form, and to guarantee a copy-able
     # width should only zero-width characters be generated.
     #
-    # Example password: ● "⠀　    ‍ ​   ‍ 　   ͏͏ᅟ  ⠀ ⁠‌⠀"
+    # Example password: ● "⠀　   ‍ ​  ‍ 　   ͏͏ᅟ  ⠀ ⁠‌⠀"
     #
     # If given a numerical argument, generate that many passwords.
     #
@@ -474,7 +494,7 @@ verify() {
 }
 
 collect-entropy() {
-    # 256-bit keyboard entropy collector
+    # 512-bit keyboard entropy collector
     local print_line() {
         local c="$1"
         local v="$2"
@@ -506,7 +526,7 @@ collect-entropy() {
     #   key press precise timestamp
     #   key release precise timestamp
     # collect precise timestamps of keypresses and mouse movements
-    entropy=$(strace --timestamps=precision:ns xev 2>&1)
+    local entropy=$(strace --timestamps=precision:ns xev 2>&1)
     printf "\n"
 
     # use b2sum(1) as a fixed-length entropy extractor
