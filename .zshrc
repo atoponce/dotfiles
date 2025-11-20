@@ -335,11 +335,31 @@ genpass-whitespace() {
     # at the edges, to prevent whitespace stripping by the auth form, and to guarantee a copy-able
     # width should only zero-width characters be generated.
     #
-    # Example password: ● "⠀　   ‍ ​  ‍ 　   ͏͏ᅟ  ⠀ ⁠‌⠀"
+    # Requires a font with good Unicode coverage. Noto Sans Mono is a solid choice. Tested in the
+    # following terminal emulators:
+    #
+    # 100% blank:
+    # - alacritty
+    # - foot
+    # - gnome-console
+    # - gnome-terminal
+    # - lxterminal
+    # - mate-terminal
+    # - sakura
+    # - st
+    # - termit
+    # - uxterm
+    # - xfce-terminal
+    # - xterm
+    #
+    # Prints tofu:
+    # - kitty
+    # - qterminal
+    # - rxvt-unicode
+    #
+    # Example password: "⠀ㅤ	            ㅤ⠀　⠀"
     #
     # If given a numerical argument, generate that many passwords.
-    #
-    # Initially developed by me for ohmyzsh.
 
     emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
 
@@ -356,10 +376,11 @@ genpass-whitespace() {
     {
         local c
         local chars=(
-            $'\u0009' $'\u0020' $'\u00A0' $'\u00AD' $'\u034F' $'\u115F' $'\u1160' $'\u180E'
-            $'\u2000' $'\u2001' $'\u2002' $'\u2003' $'\u2004' $'\u2005' $'\u2006' $'\u2007'
-            $'\u2008' $'\u2009' $'\u200A' $'\u200B' $'\u200C' $'\u200D' $'\u2028' $'\u2029'
-            $'\u202F' $'\u205F' $'\u2060' $'\u2800' $'\u3000' $'\u3164' $'\uFEFF' $'\uFFA0'
+          # https://gist.github.com/atoponce/ebbed45d66b1d8a6dc557520d88cadce
+          $'\u0009' $'\u001C' $'\u001D' $'\u001E' $'\u001F' $'\u0020' $'\u0089' $'\u00A0'
+          $'\u2000' $'\u2001' $'\u2002' $'\u2003' $'\u2004' $'\u2005' $'\u2006' $'\u2007'
+          $'\u2008' $'\u2009' $'\u200A' $'\u200B' $'\u2028' $'\u2029' $'\u202F' $'\u205F'
+          $'\u2062' $'\u2063' $'\u2064' $'\u2800' $'\u3000' $'\u3164' $'\uFEFF' $'\uFFA0'
         )
         local length=$(( ceil(128/log2($#chars)) ))
 
@@ -372,20 +393,14 @@ genpass-whitespace() {
             repeat $length; do
                 sysread -s1 c || return
                 local x=$chars[#c%$#chars+1]
-
-                [[ $x == ($'\u2028'|$'\u2029') ]] && warn=true
-
                 pass+="$x"
             done
 
             pass+=$'\u2800"'
 
-            [[ $warn == true ]] \
-                && print -rP '%F{yellow}●%F{reset} $pass' \
-                || print -rP '%F{green}●%F{reset} $pass'
+            print -rP -- "$pass"
         done
     } < /dev/urandom
-
 
     tabs -8 # restore tab width
 }
