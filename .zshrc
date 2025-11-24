@@ -35,8 +35,8 @@ autoload -Uz compinit && compinit
 autoload -U promptinit && promptinit
 autoload is-at-least
 
-zmodload zsh/mathfunc
 zmodload zsh/datetime
+zmodload zsh/mathfunc
 zmodload zsh/system
 
 zstyle :compinstall filename '~/.zshrc'
@@ -158,8 +158,6 @@ genpass-apple() {
       return 1
     fi
 
-    zmodload zsh/system zsh/mathfunc || return
-
     {
       local -r vowels=aeiouy
       local -r consonants=bcdfghjklmnpqrstvwxz
@@ -244,8 +242,6 @@ genpass-csv() {
         return 1
     fi
 
-    zmodload zsh/system zsh/mathfunc || return
-
     {
         local c
         local chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" # Base 64
@@ -304,8 +300,6 @@ genpass-monkey() {
       print -ru2 -- "usage: $0 [NUM]"
       return 1
     fi
-
-    zmodload zsh/system || return
 
     {
       local -r chars=abcdefghjkmnpqrstvwxyz0123456789
@@ -369,8 +363,6 @@ genpass-whitespace() {
         return 1
     fi
 
-    zmodload zsh/system zsh/mathfunc || return
-
     tabs -1 # set tab width to 1 space
 
     {
@@ -425,8 +417,6 @@ genpass-xkcd() {
       print -ru2 -- "usage: $0 [NUM]"
       return 1
     fi
-
-    zmodload zsh/system zsh/mathfunc || return
 
     local -r dict=/usr/share/dict/words
 
