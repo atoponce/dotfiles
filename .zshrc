@@ -122,7 +122,7 @@ csprng() {
 trng() {
     # Generates 256 bits of true randomness based on the stress of the system.
     # Modeled after coin flips pitting a slow clock (RTC) against a fast clock (CPU).
-    local flips=()
+    local flips=""
 
     while (( ${#flips[@]} < 256 )); do
         local coin=0
@@ -132,11 +132,11 @@ trng() {
             ((coin^=1)) # flip coin as fast as possible
         done
 
-        flips+=($coin)
+        flips+=$coin
     done
 
-    local h=($(print -r -- ${(j[])flips} | b2sum -l 256)) # whiten the data
-    print -r -- "$h[1]"
+    local h=($(print ${flips} | b2sum -l 256)) # whiten the data
+    print "$h[1]"
 }
 
 genpass-apple() {
