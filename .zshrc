@@ -126,7 +126,7 @@ trng() {
 
     while (( ${#flips[@]} < 256 )); do
         local coin=0
-        local -r stop=$((EPOCHREALTIME+0.001)) # 1ms into the future
+        local stop=$((EPOCHREALTIME+0.001)) # 1ms into the future
 
         while (( $EPOCHREALTIME < $stop )); do
             ((coin^=1)) # flip coin as fast as possible
