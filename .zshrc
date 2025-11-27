@@ -101,15 +101,15 @@ srandom() {
     # See https://gist.github.com/romkatv/a6cede40714ec77d4da73605c5ddb36a as a math function.
     local bytes
     sysread -s 4 bytes < /dev/urandom || return
-    local b1=$bytes[1] b2=$bytes[2] b3=$bytes[3] b4=$bytes[4]
+    local -r b1=$bytes[1] b2=$bytes[2] b3=$bytes[3] b4=$bytes[4]
     print -r -- $((#b1 << 24 | #b2 << 16 | #b3 << 8 | #b4))
 }
 
 csprng() {
     # Generates a cryptographically secure uniform random value between [0..$1)
-    local bound=${1:?"Must provide an upper bound"}
-    local min=$((2 ** 32 % bound))
-    local n=$(srandom)
+    local -r bound=${1:?"Must provide an upper bound"}
+    local -r min=$((2 ** 32 % bound))
+    local -r n=$(srandom)
 
     # Uniform modulo with rejection
     while [[ $n -lt $min ]]; do
@@ -126,7 +126,7 @@ trng() {
 
     while (( ${#flips[@]} < 256 )); do
         local coin=0
-        local stop=$((EPOCHREALTIME+0.001)) # 1ms into the future
+        local -r stop=$((EPOCHREALTIME+0.001)) # 1ms into the future
 
         while (( $EPOCHREALTIME < $stop )); do
             ((coin^=1)) # flip coin as fast as possible
@@ -135,7 +135,7 @@ trng() {
         flips+=$coin
     done
 
-    local h=($(print ${flips} | b2sum -l 256)) # whiten the data
+    local -r h=($(print ${flips} | b2sum -l 256)) # whiten the data
     print "$h[1]"
 }
 
@@ -220,9 +220,9 @@ genpass-apple() {
 }
 
 genpass-csv() {
-    # Usage: genpass-apple [NUM]
+    # Usage: genpass-csv [NUM]
     #
-    # Generate a password made of two 11-character alphanumeric strings, quotedo, and comma
+    # Generate a password made of two 11-character alphanumeric strings, quoted, and comma-
     # separated with a security margin of at least 128 bits.
     #
     # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
@@ -244,8 +244,8 @@ genpass-csv() {
 
     {
         local c
-        local chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" # Base 64
-        local length=$(( ceil(128/log2($#chars)) ))
+        local -r chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" # Base 64
+        local -r length=$(( ceil(128/log2($#chars)) ))
 
         repeat ${1-1}; do
             local pw=""
@@ -260,26 +260,43 @@ genpass-csv() {
 }
 
 genpass-graph() {
-  # Usage: genpass-graph [NUM]
-  #
-  # Generate a password made from all graphical ASCII characters with a security margin of at least
-  # 128 bits.
-  #
-  # Example password: xEmK>78(@O<M;}vSeQ(U
-  #
-  # If given a numerical argument, generate that many passwords.
+    # Usage: genpass-graph [NUM]
+    #
+    # Generate a password made from all graphical ASCII characters with a security margin of at
+    # least 128 bits.
+    #
+    # Example password: xEmK>78(@O<M;}vSeQ(U
+    #
+    # If given a numerical argument, generate that many passwords.
 
-  emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
 
-  # Test if argument is numeric, or return unsuccessfully
-  if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
-      print -ru2 -- "usage: $0 [NUM]"
-      return 1
-  fi
+    # Test if argument is numeric, or return unsuccessfully
+    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+        print -ru2 -- "usage: $0 [NUM]"
+        return 1
+    fi
 
-  repeat ${1-1}; do
-    < /dev/urandom tr -cd '[:graph:]' | head -c 20; echo
-  done
+    local c
+    local -r min=$((256 % 94))
+    local -r chars=({'!'..'~'}) # 94 graphical ascii characters
+    local -r length=$(( ceil(128/log2($#chars)) ))
+
+    {
+        repeat ${1-1}; do
+            local pw=""
+
+            repeat $length; do
+                while true; do
+                    sysread -s1 c || return
+                    (( #c < min )) && break # Avoid bias towards smaller numbers.
+                done
+                pw+=$chars[#c%$#chars+1]
+            done
+
+            print -r -- "$pw"
+        done
+    } < /dev/urandom
 }
 
 genpass-monkey() {
@@ -367,30 +384,29 @@ genpass-whitespace() {
 
     {
         local c
-        local chars=(
+        local -r chars=(
           # https://gist.github.com/atoponce/ebbed45d66b1d8a6dc557520d88cadce
           $'\u0009' $'\u001C' $'\u001D' $'\u001E' $'\u001F' $'\u0020' $'\u0089' $'\u00A0'
           $'\u2000' $'\u2001' $'\u2002' $'\u2003' $'\u2004' $'\u2005' $'\u2006' $'\u2007'
           $'\u2008' $'\u2009' $'\u200A' $'\u200B' $'\u2028' $'\u2029' $'\u202F' $'\u205F'
           $'\u2062' $'\u2063' $'\u2064' $'\u2800' $'\u3000' $'\u3164' $'\uFEFF' $'\uFFA0'
         )
-        local length=$(( ceil(128/log2($#chars)) ))
+        local -r length=$(( ceil(128/log2($#chars)) ))
 
         repeat ${1-1}; do
-            local warn=false
-            local pass=""
+            local pw=""
 
-            pass+=$'"\u2800'
+            pw+=$'"\u2800'
 
             repeat $length; do
                 sysread -s1 c || return
                 local x=$chars[#c%$#chars+1]
-                pass+="$x"
+                pw+="$x"
             done
 
-            pass+=$'\u2800"'
+            pw+=$'\u2800"'
 
-            print -rP -- "$pass"
+            print -rP -- "$pw"
         done
     } < /dev/urandom
 
