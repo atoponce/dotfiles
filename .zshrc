@@ -140,346 +140,342 @@ trng() {
 }
 
 genpass-apple() {
-    # Usage: genpass-apple [NUM]
-    #
-    # Generate a password made of 6 pseudowords of 6 characters each with the security margin of at
-    # least 128 bits.
-    #
-    # Example password: xudmec-4ambyj-tavric-mumpub-mydVop-bypjyp
-    #
-    # If given a numerical argument, generate that many passwords.
-    #
-    # Initially developed by me for ohmyzsh.
+  # Usage: genpass-apple [NUM]
+  #
+  # Generate a password made of 6 pseudowords of 6 characters each with the security margin of at
+  # least 128 bits.
+  #
+  # Example password: xudmec-4ambyj-tavric-mumpub-mydVop-bypjyp
+  #
+  # If given a numerical argument, generate that many passwords.
+  #
+  # Initially developed by me for ohmyzsh.
 
-    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+  emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
 
-    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
-      print -ru2 -- "usage: $0 [NUM]"
-      return 1
-    fi
+  if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+    print -ru2 -- "usage: $0 [NUM]"
+    return 1
+  fi
 
-    {
-      local -r vowels=aeiouy
-      local -r consonants=bcdfghjklmnpqrstvwxz
-      local -r digits=0123456789
+  {
+    local -r vowels=aeiouy
+    local -r consonants=bcdfghjklmnpqrstvwxz
+    local -r digits=0123456789
 
-      # Sets REPLY to a uniformly distributed random number in [1, $1].
-      # Requires: $1 <= 256.
-      function -$0-rand() {
-        local c
-        while true; do
-          sysread -s1 c || return
-          # Avoid bias towards smaller numbers.
-          (( #c < 256 / $1 * $1 )) && break
-        done
-        typeset -g REPLY=$((#c % $1 + 1))
-      }
+    # Sets REPLY to a uniformly distributed random number in [1, $1].
+    # Requires: $1 <= 256.
+    function -$0-rand() {
+      local c
+      while true; do
+        sysread -s1 c || return
+        # Avoid bias towards smaller numbers.
+        (( #c < 256 / $1 * $1 )) && break
+      done
+      typeset -g REPLY=$((#c % $1 + 1))
+    }
 
-      local REPLY chars
+    local REPLY chars
 
-      repeat ${1-1}; do
-        # Generate 6 pseudowords of the form cvccvc where c and v
-        # denote random consonants and vowels respectively.
-        local words=()
-        repeat 6; do
-          words+=('')
-          repeat 2; do
-            for chars in $consonants $vowels $consonants; do
-              -$0-rand $#chars || return
-              words[-1]+=$chars[REPLY]
-            done
+    repeat ${1-1}; do
+      # Generate 6 pseudowords of the form cvccvc where c and v
+      # denote random consonants and vowels respectively.
+      local words=()
+      repeat 6; do
+        words+=('')
+        repeat 2; do
+          for chars in $consonants $vowels $consonants; do
+            -$0-rand $#chars || return
+            words[-1]+=$chars[REPLY]
           done
         done
-
-        local pwd=${(j:-:)words}
-
-        # Replace either the first or the last character in one of
-        # the words with a random digit.
-        -$0-rand $#digits || return
-        local digit=$digits[REPLY]
-        -$0-rand $((2 * $#words)) || return
-        pwd[REPLY/2*7+2*(REPLY%2)-1]=$digit
-
-        # Convert one lower-case character to upper case.
-        while true; do
-          -$0-rand $#pwd || return
-          [[ $vowels$consonants == *$pwd[REPLY]* ]] && break
-        done
-        # NOTE: We aren't using ${(U)c} here because its results are
-        # locale-dependent. For example, when upper-casing 'i' in Turkish
-        # locale we would get 'İ', a.k.a. latin capital letter i with dot
-        # above. We could set LC_CTYPE=C locally but then we would run afoul
-        # of this zsh bug: https://www.zsh.org/mla/workers/2020/msg00588.html.
-        local c=$pwd[REPLY]
-        printf -v c '%o' $((#c - 32))
-        printf "%s\\$c%s\\n" "$pwd[1,REPLY-1]" "$pwd[REPLY+1,-1]" || return
       done
-    } always {
-      unfunction -m -- "-${(b)0}-*"
-    } </dev/urandom
+
+      local pwd=${(j:-:)words}
+
+      # Replace either the first or the last character in one of
+      # the words with a random digit.
+      -$0-rand $#digits || return
+      local digit=$digits[REPLY]
+      -$0-rand $((2 * $#words)) || return
+      pwd[REPLY/2*7+2*(REPLY%2)-1]=$digit
+
+      # Convert one lower-case character to upper case.
+      while true; do
+        -$0-rand $#pwd || return
+        [[ $vowels$consonants == *$pwd[REPLY]* ]] && break
+      done
+      # NOTE: We aren't using ${(U)c} here because its results are
+      # locale-dependent. For example, when upper-casing 'i' in Turkish
+      # locale we would get 'İ', a.k.a. latin capital letter i with dot
+      # above. We could set LC_CTYPE=C locally but then we would run afoul
+      # of this zsh bug: https://www.zsh.org/mla/workers/2020/msg00588.html.
+      local c=$pwd[REPLY]
+      printf -v c '%o' $((#c - 32))
+      printf "%s\\$c%s\\n" "$pwd[1,REPLY-1]" "$pwd[REPLY+1,-1]" || return
+    done
+  } always {
+    unfunction -m -- "-${(b)0}-*"
+  } </dev/urandom
 }
 
 genpass-csv() {
-    # Usage: genpass-csv [NUM]
-    #
-    # Generate a password made of two 11-character alphanumeric strings, quoted, and comma-
-    # separated with a security margin of at least 128 bits.
-    #
-    # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
-    # > breached. Until next time!" ~ Skeletor
-    #
-    # Example password: "9Q8v6p3aCUm","qXYtKI8oKtc"
-    #
-    # If given a numerical argument, generate that many passwords.
-    #
-    # Initially developed by me for ohmyzsh.
+  # Usage: genpass-csv [NUM]
+  #
+  # Generate a password made of two 11-character alphanumeric strings, quoted, and comma-
+  # separated with a security margin of at least 128 bits.
+  #
+  # > "Add commas to your passwords to mess with the CSV file they will be dumped into after being
+  # > breached. Until next time!" ~ Skeletor
+  #
+  # Example password: "9Q8v6p3aCUm","qXYtKI8oKtc"
+  #
+  # If given a numerical argument, generate that many passwords.
 
-    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+  emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
 
-    # Test if argument is numeric, or return unsuccessfully
-    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
-        print -ru2 -- "usage: $0 [NUM]"
-        return 1
-    fi
+  # Test if argument is numeric, or return unsuccessfully
+  if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+    print -ru2 -- "usage: $0 [NUM]"
+    return 1
+  fi
 
-    {
-        local c
-        local -r chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" # Base 64
-        local -r length=$(( ceil(128/log2($#chars)) ))
+  {
+    local c
+    local -r chars="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/" # Base 64
+    local -r length=$(( ceil(128/log2($#chars)) ))
 
-        repeat ${1-1}; do
-            local pw=""
-            repeat $length; do
-                sysread -s1 c || return
-                pw+=$chars[#c%$#chars+1] # Uniform as $#chars divides 256 evenly.
-            done
-            print -r -- "\"$pw[1,$#pw/2]\",\"$pw[$#pw/2+1,$#pw]\""
-        done
+    repeat ${1-1}; do
+      local pw=""
+      repeat $length; do
+        sysread -s1 c || return
+        pw+=$chars[#c%$#chars+1] # Uniform as $#chars divides 256 evenly.
+      done
+      print -r -- "\"$pw[1,$#pw/2]\",\"$pw[$#pw/2+1,$#pw]\""
+    done
 
-    } < /dev/urandom
+  } < /dev/urandom
 }
 
 genpass-graph() {
-    # Usage: genpass-graph [NUM]
-    #
-    # Generate a password made from all graphical ASCII characters with a security margin of at
-    # least 128 bits.
-    #
-    # Example password: xEmK>78(@O<M;}vSeQ(U
-    #
-    # If given a numerical argument, generate that many passwords.
+  # Usage: genpass-graph [NUM]
+  #
+  # Generate a password made from all graphical ASCII characters with a security margin of at
+  # least 128 bits.
+  #
+  # Example password: xEmK>78(@O<M;}vSeQ(U
+  #
+  # If given a numerical argument, generate that many passwords.
 
-    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+  emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
 
-    # Test if argument is numeric, or return unsuccessfully
-    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
-        print -ru2 -- "usage: $0 [NUM]"
-        return 1
-    fi
+  # Test if argument is numeric, or return unsuccessfully
+  if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+    print -ru2 -- "usage: $0 [NUM]"
+    return 1
+  fi
 
-    local c
-    local -r min=$((256 % 94))
-    local -r chars=({'!'..'~'}) # 94 graphical ascii characters
-    local -r length=$(( ceil(128/log2($#chars)) ))
+  local c
+  local -r chars=({'!'..'~'}) # 94 graphical ascii characters
+  local -r min=$((256 % $#chars))
+  local -r length=$(( ceil(128/log2($#chars)) ))
 
-    {
-        repeat ${1-1}; do
-            local pw=""
-
-            repeat $length; do
-                while true; do
-                    sysread -s1 c || return
-                    (( #c < min )) && break # Avoid bias towards smaller numbers.
-                done
-                pw+=$chars[#c%$#chars+1]
-            done
-
-            print -r -- "$pw"
+  {
+    repeat ${1-1}; do
+      repeat $length; do
+        while true; do
+          sysread -s1 c || return
+          (( #c >= min )) && break # Avoid bias towards smaller numbers.
         done
-    } < /dev/urandom
+        print -rn -- $chars[#c%$#chars+1]
+      done
+      print
+    done
+  } < /dev/urandom
 }
 
 genpass-monkey() {
-    # Usage: genpass-monkey [NUM]
-    #
-    # Generate a password made of 26 alphanumeric characters with the security margin of at least
-    # 128 bits.
-    #
-    # Example password: nz5ej2kypkvcw0rn5cvhs6qxtm
-    #
-    # If given a numerical argument, generate that many passwords.
-    #
-    # Initially developed by me for ohmyzsh.
+  # Usage: genpass-monkey [NUM]
+  #
+  # Generate a password made of 26 alphanumeric characters with the security margin of at least
+  # 128 bits.
+  #
+  # Example password: nz5ej2kypkvcw0rn5cvhs6qxtm
+  #
+  # If given a numerical argument, generate that many passwords.
+  #
+  # Initially developed by me for ohmyzsh.
 
-    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+  emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
 
-    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
-      print -ru2 -- "usage: $0 [NUM]"
-      return 1
-    fi
+  if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+    print -ru2 -- "usage: $0 [NUM]"
+    return 1
+  fi
 
-    {
-      local -r chars=abcdefghjkmnpqrstvwxyz0123456789
-      local c
-      repeat ${1-1}; do
-        repeat 26; do
-          sysread -s1 c || return
-          # There is uniform because $#chars divides 256.
-          print -rn -- $chars[#c%$#chars+1]
-        done
-        print
+  {
+    local -r chars=abcdefghjkmnpqrstvwxyz0123456789
+    local c
+    repeat ${1-1}; do
+      repeat 26; do
+        sysread -s1 c || return
+        # There is uniform because $#chars divides 256.
+        print -rn -- $chars[#c%$#chars+1]
       done
-    } </dev/urandom
+      print
+    done
+  } </dev/urandom
 }
 
 genpass-whitespace() {
-    # Usage: genpass-whitespace [NUM]
-    #
-    # Generate a password made of 32 non-control, non-graphical, horizontal spaces/blanks with a
-    # security margin of at least 128 bits.
-    #
-    # Both nonzero- and zero-width characters are used. Two characters are technically vertical
-    # characters, but aren't interpreted as such in the shell. They are "\u2028" and "\u2029". You
-    # might need a font with good Unicode support to prevent some of these characters creating tofu.
-    #
-    # The password is wrapped in braille pattern blanks for correctly handling zero-width characters
-    # at the edges, to prevent whitespace stripping by the auth form, and to guarantee a copy-able
-    # width should only zero-width characters be generated.
-    #
-    # Requires a font with good Unicode coverage. Noto Sans Mono is a solid choice. Tested in the
-    # following terminal emulators:
-    #
-    # 100% blank:
-    # - alacritty
-    # - foot
-    # - gnome-console
-    # - gnome-terminal
-    # - lxterminal
-    # - mate-terminal
-    # - sakura
-    # - st
-    # - termit
-    # - uxterm
-    # - xfce-terminal
-    # - xterm
-    #
-    # Prints tofu:
-    # - kitty
-    # - qterminal
-    # - rxvt-unicode
-    #
-    # Example password: "⠀ㅤ	            ㅤ⠀　⠀"
-    #
-    # If given a numerical argument, generate that many passwords.
+  # Usage: genpass-whitespace [NUM]
+  #
+  # Generate a password made of 32 non-control, non-graphical, horizontal spaces/blanks with a
+  # security margin of at least 128 bits.
+  #
+  # Both nonzero- and zero-width characters are used. Two characters are technically vertical
+  # characters, but aren't interpreted as such in the shell. They are "\u2028" and "\u2029". You
+  # might need a font with good Unicode support to prevent some of these characters creating tofu.
+  #
+  # The password is wrapped in braille pattern blanks for correctly handling zero-width characters
+  # at the edges, to prevent whitespace stripping by the auth form, and to guarantee a copy-able
+  # width should only zero-width characters be generated.
+  #
+  # Requires a font with good Unicode coverage. Noto Sans Mono is a solid choice. Tested in the
+  # following terminal emulators:
+  #
+  # 100% blank:
+  # - alacritty
+  # - foot
+  # - gnome-console
+  # - gnome-terminal
+  # - lxterminal
+  # - mate-terminal
+  # - sakura
+  # - st
+  # - terminator
+  # - termit
+  # - uxterm
+  # - xfce-terminal
+  # - xterm
+  #
+  # Prints tofu:
+  # - kitty
+  # - qterminal
+  # - rxvt-unicode
+  #
+  # Example password: "⠀ㅤ	            ㅤ⠀　⠀"
+  #
+  # If given a numerical argument, generate that many passwords.
 
-    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
+  emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var
 
-    # Test if argument is numeric, or return unsuccessfully
-    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
-        print -ru2 -- "usage: $0 [NUM]"
-        return 1
-    fi
+  # Test if argument is numeric, or return unsuccessfully
+  if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+    print -ru2 -- "usage: $0 [NUM]"
+    return 1
+  fi
 
-    tabs -1 # set tab width to 1 space
+  tabs -1 # set tab width to 1 space
 
-    {
-        local c
-        local -r chars=(
-          # https://gist.github.com/atoponce/ebbed45d66b1d8a6dc557520d88cadce
-          $'\u0009' $'\u001C' $'\u001D' $'\u001E' $'\u001F' $'\u0020' $'\u0089' $'\u00A0'
-          $'\u2000' $'\u2001' $'\u2002' $'\u2003' $'\u2004' $'\u2005' $'\u2006' $'\u2007'
-          $'\u2008' $'\u2009' $'\u200A' $'\u200B' $'\u2028' $'\u2029' $'\u202F' $'\u205F'
-          $'\u2062' $'\u2063' $'\u2064' $'\u2800' $'\u3000' $'\u3164' $'\uFEFF' $'\uFFA0'
-        )
-        local -r length=$(( ceil(128/log2($#chars)) ))
+  {
+    local c
+    local -r chars=(
+      # https://gist.github.com/atoponce/ebbed45d66b1d8a6dc557520d88cadce
+      $'\u0009' $'\u001C' $'\u001D' $'\u001E' $'\u001F' $'\u0020' $'\u0089' $'\u00A0'
+      $'\u2000' $'\u2001' $'\u2002' $'\u2003' $'\u2004' $'\u2005' $'\u2006' $'\u2007'
+      $'\u2008' $'\u2009' $'\u200A' $'\u200B' $'\u2028' $'\u2029' $'\u202F' $'\u205F'
+      $'\u2062' $'\u2063' $'\u2064' $'\u2800' $'\u3000' $'\u3164' $'\uFEFF' $'\uFFA0'
+    )
+    local -r length=$(( ceil(128/log2($#chars)) ))
 
-        repeat ${1-1}; do
-            local pw=""
+    repeat ${1-1}; do
+      local pw=""
 
-            pw+=$'"\u2800'
+      pw+=$'"\u2800'
 
-            repeat $length; do
-                sysread -s1 c || return
-                local x=$chars[#c%$#chars+1]
-                pw+="$x"
-            done
+      repeat $length; do
+        sysread -s1 c || return
+        local x=$chars[#c%$#chars+1]
+        pw+="$x"
+      done
 
-            pw+=$'\u2800"'
+      pw+=$'\u2800"'
 
-            print -rP -- "$pw"
-        done
-    } < /dev/urandom
+      print -rP -- "$pw"
+    done
+  } < /dev/urandom
 
-    tabs -8 # restore tab width
+  tabs -8 # restore tab width
 }
 
 genpass-xkcd() {
-    # Usage: genpass-xkcd [NUM]
-    #
-    # Generate a password made of words from /usr/share/dict/words with the security margin of at
-    # least 128 bits.
-    #
-    # Example password: 9-mien-flood-Patti-buxom-dozes-ickier-pay-ailed-Foster
-    #
-    # If given a numerical argument, generate that many passwords.
-    #
-    # The name of this utility is a reference to https://xkcd.com/936/.
-    #
-    # Initially developed by me for ohmyzsh.
+  # Usage: genpass-xkcd [NUM]
+  #
+  # Generate a password made of words from /usr/share/dict/words with the security margin of at
+  # least 128 bits.
+  #
+  # Example password: 9-mien-flood-Patti-buxom-dozes-ickier-pay-ailed-Foster
+  #
+  # If given a numerical argument, generate that many passwords.
+  #
+  # The name of this utility is a reference to https://xkcd.com/936/.
+  #
+  # Initially developed by me for ohmyzsh.
 
-    emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var -o extended_glob
+  emulate -L zsh -o no_unset -o warn_create_global -o warn_nested_var -o extended_glob
 
-    if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
-      print -ru2 -- "usage: $0 [NUM]"
-      return 1
-    fi
+  if [[ ARGC -gt 1 || ${1-1} != ${~:-<1-$((16#7FFFFFFF))>} ]]; then
+    print -ru2 -- "usage: $0 [NUM]"
+    return 1
+  fi
 
-    local -r dict=/usr/share/dict/words
+  local -r dict=/usr/share/dict/words
 
-    if [[ ! -e $dict ]]; then
-      print -ru2 -- "$0: file not found: $dict"
-      return 1
-    fi
+  if [[ ! -e $dict ]]; then
+    print -ru2 -- "$0: file not found: $dict"
+    return 1
+  fi
 
-    # Read all dictionary words and leave only those made of 1-6 characters.
-    local -a words
-    words=(${(M)${(f)"$(<$dict)"}:#[a-zA-Z](#c1,6)}) || return
+  # Read all dictionary words and leave only those made of 1-6 characters.
+  local -a words
+  words=(${(M)${(f)"$(<$dict)"}:#[a-zA-Z](#c1,6)}) || return
 
-    if (( $#words < 2 )); then
-      print -ru2 -- "$0: not enough suitable words in $dict"
-      return 1
-    fi
+  if (( $#words < 2 )); then
+    print -ru2 -- "$0: not enough suitable words in $dict"
+    return 1
+  fi
 
-    if (( $#words > 16#7FFFFFFF )); then
-      print -ru2 -- "$0: too many words in $dict"
-      return 1
-    fi
+  if (( $#words > 16#7FFFFFFF )); then
+    print -ru2 -- "$0: too many words in $dict"
+    return 1
+  fi
 
-    # Figure out how many words we need for 128 bits of security margin.
-    # Each word adds log2($#words) bits.
-    local -i n=$((ceil(128. / (log($#words) / log(2)))))
+  # Figure out how many words we need for 128 bits of security margin.
+  # Each word adds log2($#words) bits.
+  local -i n=$((ceil(128. / (log($#words) / log(2)))))
 
-    {
-      local c
-      repeat ${1-1}; do
-        print -rn -- $n
-        repeat $n; do
-          while true; do
-            # Generate a random number in [0, 2**31).
-            local -i rnd=0
-            repeat 4; do
-              sysread -s1 c || return
-              (( rnd = (~(1 << 23) & rnd) << 8 | #c ))
-            done
-            # Avoid bias towards words in the beginning of the list.
-            (( rnd < 16#7FFFFFFF / $#words * $#words )) || continue
-            print -rn -- ' '$words[rnd%$#words+1]
-            break
+  {
+    local c
+    repeat ${1-1}; do
+      print -rn -- $n
+      repeat $n; do
+        while true; do
+          # Generate a random number in [0, 2**31).
+          local -i rnd=0
+          repeat 4; do
+            sysread -s1 c || return
+            (( rnd = (~(1 << 23) & rnd) << 8 | #c ))
           done
+          # Avoid bias towards words in the beginning of the list.
+          (( rnd < 16#7FFFFFFF / $#words * $#words )) || continue
+          print -rn -- ' '$words[rnd%$#words+1]
+          break
         done
-        print
       done
-    } </dev/urandom
+      print
+    done
+  } </dev/urandom
 }
 
 encrypt() {
